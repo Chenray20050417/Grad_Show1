@@ -306,7 +306,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerAnimator: {fileID: 465100622}
   pushAnimName: push
-  triggerCooldown: 1
+  cooldown: 1.2
+  downOffset: 0.08
+  upOffset: 0.08
+  minMoveDistance: 0.12
+  requiredFrames: 3
+  minShoulderWidth: 0.12
 --- !u!4 &368392266
 Transform:
   m_ObjectHideFlags: 0
@@ -1180,19 +1185,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842583978917, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -1237.1758
+      value: -1356.3947
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842583978917, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -584.6171
+      value: -662.7455
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842583978917, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 618.59143
+      value: -3186
       objectReference: {fileID: 0}
     - target: {fileID: 8571076842583978917, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 252.36288
+      value: 1240
+      objectReference: {fileID: 0}
+    - target: {fileID: 8571076843139220523, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
+      propertyPath: _modalPanel
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8571076843237194833, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: _baseRunner
@@ -1210,6 +1219,10 @@ PrefabInstance:
       propertyPath: _contents
       value: 
       objectReference: {fileID: 7355513348742275121, guid: 8026945368f4a1ed29b086d7499b3172, type: 3}
+    - target: {fileID: 8571076843980202029, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
+      propertyPath: _modalPanel
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8571076844286272849, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1225,6 +1238,10 @@ PrefabInstance:
     - target: {fileID: 8571076844286272849, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8747516472398760886, guid: 140d1d2c406167c50819d89f86d9092e, type: 3}
+      propertyPath: _modalPanel
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
