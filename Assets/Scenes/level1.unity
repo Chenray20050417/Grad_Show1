@@ -847,6 +847,7 @@ MonoBehaviour:
   runningMode: 0
   _poseLandmarkerResultAnnotationController: {fileID: 1006057044}
   shoulderPressDetector: {fileID: 368392265}
+  boxingDetector: {fileID: 0}
 --- !u!1 &1101735791
 GameObject:
   m_ObjectHideFlags: 0
