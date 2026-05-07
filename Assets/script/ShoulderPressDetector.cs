@@ -2,7 +2,12 @@ using UnityEngine;
 using Mediapipe.Tasks.Vision.PoseLandmarker;
 
 public class ShoulderPressDetector : MonoBehaviour
-{
+{   
+
+
+    [Header("攻擊判定")]
+public PushHitBoxController pushHitBox;
+
     [Header("Animator")]
     public Animator playerAnimator;
     public string pushAnimName = "push";
@@ -39,6 +44,10 @@ public class ShoulderPressDetector : MonoBehaviour
             if (playerAnimator != null)
             {
                 playerAnimator.Play(pushAnimName, 0, 0f);
+                if (pushHitBox != null)
+{
+    pushHitBox.ActivateHitBox();
+}
                 playerAnimator.Update(0f);
             }
             else
