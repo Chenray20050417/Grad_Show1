@@ -12,6 +12,7 @@ namespace Mediapipe.Unity.Sample.PoseLandmarkDetection
     [Header("Detector")]
     [SerializeField] private ShoulderPressDetector shoulderPressDetector;
     [SerializeField] private BoxingDetector boxingDetector;
+    [SerializeField] private MenuGestureController menuGestureController;
 
     private Experimental.TextureFramePool _textureFramePool;
     public readonly PoseLandmarkDetectionConfig config = new PoseLandmarkDetectionConfig();
@@ -229,6 +230,15 @@ namespace Mediapipe.Unity.Sample.PoseLandmarkDetection
       {
         boxingDetector.CheckPose(landmarks);
       }
+
+       // 打拳那關：吃 landmarks 陣列
+    if (menuGestureController != null)
+{
+    menuGestureController.CheckPose(landmarks);
+}
+
+
+
     }
 
     private void DisposeAllMasks(PoseLandmarkerResult result)
