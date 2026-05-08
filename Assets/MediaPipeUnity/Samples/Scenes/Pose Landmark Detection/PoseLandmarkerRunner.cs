@@ -11,6 +11,7 @@ namespace Mediapipe.Unity.Sample.PoseLandmarkDetection
 
     [Header("Detector")]
     [SerializeField] private ShoulderPressDetector shoulderPressDetector;
+    [SerializeField] private SquatDetector squatDetector;
     [SerializeField] private BoxingDetector boxingDetector;
     [SerializeField] private MenuGestureController menuGestureController;
 
@@ -226,6 +227,14 @@ namespace Mediapipe.Unity.Sample.PoseLandmarkDetection
       {
         shoulderPressDetector.CheckPose(result);
       }
+      if (result.poseLandmarks != null &&
+    result.poseLandmarks.Count > 0)
+{
+    if (squatDetector != null)
+        squatDetector.CheckPose(result.poseLandmarks[0].landmarks.ToArray());
+}
+
+
 
       // 打拳那關：吃 landmarks 陣列
       if (boxingDetector != null)
