@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using Mediapipe.Tasks.Components.Containers;
 
 public class MenuGestureController : MonoBehaviour
@@ -16,6 +18,9 @@ public class MenuGestureController : MonoBehaviour
     public RectTransform fingerCursor;
     public bool mirrorX = true;
 
+    [Header("握拳點擊")]
+    public float clickCooldown = 1f;
+
     private Vector3 originalPos;
 
     private float targetX;
@@ -25,32 +30,43 @@ public class MenuGestureController : MonoBehaviour
     private float handY = 0.5f;
     private bool hasHand = false;
 
+    private bool lastFist = false;
+    private bool requestClick = false;
+    private float lastClickTime = -999f;
+
     private readonly object poseLock = new object();
 
     void Start()
     {
         if (menuBackground != null)
             originalPos = menuBackground.localPosition;
+
+        Debug.Log("MenuGestureController 啟動完成");
     }
 
     void Update()
     {
         UpdateBackground();
         UpdateHandCursor();
+
+        // 只能在 Unity 主執行緒點擊
+        if (requestClick)
+        {
+            requestClick = false;
+            TryClick();
+        }
     }
 
     public void CheckPose(NormalizedLandmark[] lm)
     {
         if (lm == null || lm.Length < 17) return;
 
-        // 鼻子 = 0
         float noseX = lm[0].x;
         float noseY = lm[0].y;
 
         float bgX = -(noseX - 0.5f) * moveRangeX * 2f;
         float bgY = (noseY - 0.5f) * moveRangeY * 2f;
 
-        // 右手腕 = 16
         float x = lm[16].x;
         float y = lm[16].y;
 
@@ -67,6 +83,89 @@ public class MenuGestureController : MonoBehaviour
             hasHand = true;
         }
     }
+public void CheckHand(NormalizedLandmarks lm)
+{
+    if (lm.landmarks == null || lm.landmarks.Count < 21)
+        return;
+
+    bool fist = IsFist(lm);
+
+    if (fist)
+    {
+        Debug.Log("👊 握拳");
+    }
+    else
+    {
+        Debug.Log("🖐 張開");
+    }
+}
+
+    bool IsFist(NormalizedLandmarks lm)
+    {
+        var p = lm.landmarks;
+
+        bool indexFold = p[8].y > p[6].y;
+        bool middleFold = p[12].y > p[10].y;
+        bool ringFold = p[16].y > p[14].y;
+        bool pinkyFold = p[20].y > p[18].y;
+
+        int foldCount = 0;
+
+        if (indexFold) foldCount++;
+        if (middleFold) foldCount++;
+        if (ringFold) foldCount++;
+        if (pinkyFold) foldCount++;
+
+        return foldCount >= 3;
+    }
+
+    void TryClick()
+    {
+        if (fingerCursor == null)
+        {
+            Debug.LogWarning("FingerCursor 沒有指定");
+            return;
+        }
+
+        if (EventSystem.current == null)
+        {
+            Debug.LogWarning("場景沒有 EventSystem");
+            return;
+        }
+
+        if (Time.time - lastClickTime < clickCooldown)
+        {
+            Debug.Log("點擊冷卻中");
+            return;
+        }
+
+        lastClickTime = Time.time;
+
+        PointerEventData pointer =
+            new PointerEventData(EventSystem.current);
+
+        pointer.position =
+            RectTransformUtility.WorldToScreenPoint(null, fingerCursor.position);
+
+        var results =
+            new System.Collections.Generic.List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        Debug.Log("Raycast 打到物件數量：" + results.Count);
+
+        foreach (var r in results)
+        {
+            Button btn = r.gameObject.GetComponent<Button>();
+
+            if (btn != null)
+            {
+                Debug.Log("握拳點擊：" + btn.name);
+                btn.onClick.Invoke();
+                break;
+            }
+        }
+    }
 
     void UpdateBackground()
     {
@@ -81,13 +180,15 @@ public class MenuGestureController : MonoBehaviour
             y = targetY;
         }
 
-        Vector3 targetPos = originalPos + new Vector3(x, y, 0);
+        Vector3 targetPos =
+            originalPos + new Vector3(x, y, 0);
 
-        menuBackground.localPosition = Vector3.Lerp(
-            menuBackground.localPosition,
-            targetPos,
-            Time.deltaTime * smoothSpeed
-        );
+        menuBackground.localPosition =
+            Vector3.Lerp(
+                menuBackground.localPosition,
+                targetPos,
+                Time.deltaTime * smoothSpeed
+            );
     }
 
     void UpdateHandCursor()

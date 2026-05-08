@@ -13,7 +13,9 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 {
   public class HandLandmarkerRunner : VisionTaskApiRunner<HandLandmarker>
   {
+
     [SerializeField] private HandLandmarkerResultAnnotationController _handLandmarkerResultAnnotationController;
+    [SerializeField] private MenuGestureController menuGestureController;
 
     private Experimental.TextureFramePool _textureFramePool;
 
@@ -151,9 +153,20 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
       }
     }
 
-    private void OnHandLandmarkDetectionOutput(HandLandmarkerResult result, Image image, long timestamp)
+private void OnHandLandmarkDetectionOutput(
+    HandLandmarkerResult result,
+    Image image,
+    long timestamp)
+ {
+    _handLandmarkerResultAnnotationController.DrawLater(result);
+
+    if (menuGestureController != null &&
+        result.handLandmarks != null &&
+        result.handLandmarks.Count > 0)
     {
-      _handLandmarkerResultAnnotationController.DrawLater(result);
+        menuGestureController.CheckHand(result.handLandmarks[0]);
     }
+ }
+
   }
-}
+ }
