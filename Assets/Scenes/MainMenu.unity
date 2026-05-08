@@ -581,6 +581,9 @@ MonoBehaviour:
   runningMode: 0
   _handLandmarkerResultAnnotationController: {fileID: 1006057044}
   menuGestureController: {fileID: 894922155}
+  yaGesturePauseController: {fileID: 0}
+  handCursorController: {fileID: 0}
+  pauseGestureController: {fileID: 0}
 --- !u!4 &488432533
 Transform:
   m_ObjectHideFlags: 0
@@ -866,7 +869,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 27.5, y: 5.3}
-  m_SizeDelta: {x: 40, y: 40}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &724509699
 MonoBehaviour:
@@ -1111,7 +1114,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 967.00006
+      value: 177
       objectReference: {fileID: 0}
     - target: {fileID: 3259285889726014650, guid: 5713b959e3c77a58fb258133fc8e4aef, type: 3}
       propertyPath: m_AnchoredPosition.y

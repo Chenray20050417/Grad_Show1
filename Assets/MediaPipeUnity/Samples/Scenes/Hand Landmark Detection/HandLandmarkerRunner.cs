@@ -16,6 +16,10 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 
     [SerializeField] private HandLandmarkerResultAnnotationController _handLandmarkerResultAnnotationController;
     [SerializeField] private MenuGestureController menuGestureController;
+     [SerializeField] private YAGesturePauseController yaGesturePauseController;
+[SerializeField] private HandCursorController handCursorController;
+[SerializeField] private PauseGestureController pauseGestureController;
+[SerializeField] private HandUIController handUIController;
 
     private Experimental.TextureFramePool _textureFramePool;
 
@@ -157,16 +161,24 @@ private void OnHandLandmarkDetectionOutput(
     HandLandmarkerResult result,
     Image image,
     long timestamp)
- {
+{
     _handLandmarkerResultAnnotationController.DrawLater(result);
 
-    if (menuGestureController != null &&
-        result.handLandmarks != null &&
+    if (result.handLandmarks != null &&
         result.handLandmarks.Count > 0)
     {
-        menuGestureController.CheckHand(result.handLandmarks[0]);
-    }
- }
+        if (menuGestureController != null)
+            menuGestureController.CheckHand(result.handLandmarks[0]);
 
+        if (yaGesturePauseController != null)
+            yaGesturePauseController.CheckHand(result.handLandmarks[0]);
+
+        if (handCursorController != null)
+            handCursorController.CheckHand(result.handLandmarks[0]);
+
+        if (handUIController != null)
+            handUIController.CheckHand(result.handLandmarks[0]);
+    }
+}
   }
  }

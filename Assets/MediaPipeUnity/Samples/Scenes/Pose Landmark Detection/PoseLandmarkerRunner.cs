@@ -14,6 +14,8 @@ namespace Mediapipe.Unity.Sample.PoseLandmarkDetection
     [SerializeField] private BoxingDetector boxingDetector;
     [SerializeField] private MenuGestureController menuGestureController;
 
+    
+
     private Experimental.TextureFramePool _textureFramePool;
     public readonly PoseLandmarkDetectionConfig config = new PoseLandmarkDetectionConfig();
 
@@ -235,6 +237,8 @@ namespace Mediapipe.Unity.Sample.PoseLandmarkDetection
     if (menuGestureController != null)
 {
     menuGestureController.CheckPose(landmarks);
+
+
 }
 
 
