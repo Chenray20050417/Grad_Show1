@@ -7,6 +7,9 @@ public class GameTimer : MonoBehaviour
     [Header("時間設定")]
     public float totalTime = 90f;
 
+    [Header("目前時間")]
+    public float currentTime;
+
     [Header("UI")]
     public TMP_Text timerText;
     public RectTransform timerPanel;
@@ -20,7 +23,6 @@ public class GameTimer : MonoBehaviour
     public float shakeDuration = 0.4f;
     public float baseShakeStrength = 5f;
 
-    private float currentTime;
     private bool isRunning = true;
 
     private Vector3 originalPos;
@@ -59,37 +61,31 @@ public class GameTimer : MonoBehaviour
         int minute = Mathf.FloorToInt(currentTime / 60);
         int second = Mathf.FloorToInt(currentTime % 60);
 
-        timerText.text = minute.ToString("00") + ":" + second.ToString("00");
+        if (timerText != null)
+            timerText.text = minute.ToString("00") + ":" + second.ToString("00");
 
-        // 顏色切換
+        if (timerText == null) return;
+
         if (currentTime <= 10)
-        {
             timerText.color = dangerColor;
-        }
         else if (currentTime <= 30)
-        {
             timerText.color = warningColor;
-        }
         else
-        {
             timerText.color = normalColor;
-        }
     }
 
     void CheckShake()
     {
+        if (timerPanel == null) return;
+
         int currentSecond = Mathf.CeilToInt(currentTime);
 
-        // 每10秒震一次
         if (currentSecond % 10 == 0 && currentSecond != lastShakeSecond)
         {
             lastShakeSecond = currentSecond;
 
-            // 越後面震越大
             float progress = 1f - (currentTime / totalTime);
-
-            float shakePower =
-                baseShakeStrength + (progress * 20f);
+            float shakePower = baseShakeStrength + (progress * 20f);
 
             StartCoroutine(Shake(shakePower));
         }

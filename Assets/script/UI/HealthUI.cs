@@ -20,40 +20,35 @@ public class HealthUI : MonoBehaviour
 
     void Start()
     {
-        healthSlider.maxValue = maxHealth;
-        healthSlider.value = currentHealth;
+        currentHealth = maxHealth;
+
+        if (healthSlider != null)
+        {
+            healthSlider.maxValue = maxHealth;
+            healthSlider.value = currentHealth;
+        }
 
         if (healthPanel != null)
-        {
             originalPos = healthPanel.localPosition;
-        }
     }
 
     void Update()
     {
-        // H 扣血測試
         if (Input.GetKeyDown(KeyCode.H))
-        {
             TakeDamage(10);
-        }
 
-        // J 補血測試
         if (Input.GetKeyDown(KeyCode.J))
-        {
             Heal(10);
-        }
     }
 
     public void TakeDamage(float damage)
     {
         currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        currentHealth =
-            Mathf.Clamp(currentHealth, 0, maxHealth);
+        if (healthSlider != null)
+            healthSlider.value = currentHealth;
 
-        healthSlider.value = currentHealth;
-
-        // UI抖動
         if (healthPanel != null)
         {
             StopAllCoroutines();
@@ -64,11 +59,15 @@ public class HealthUI : MonoBehaviour
     public void Heal(float amount)
     {
         currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        currentHealth =
-            Mathf.Clamp(currentHealth, 0, maxHealth);
+        if (healthSlider != null)
+            healthSlider.value = currentHealth;
+    }
 
-        healthSlider.value = currentHealth;
+    public bool IsDead()
+    {
+        return currentHealth <= 0;
     }
 
     IEnumerator ShakeRoutine()
@@ -77,13 +76,10 @@ public class HealthUI : MonoBehaviour
 
         while (timer < shakeDuration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
 
-            float x =
-                Random.Range(-shakeStrength, shakeStrength);
-
-            float y =
-                Random.Range(-shakeStrength, shakeStrength);
+            float x = Random.Range(-shakeStrength, shakeStrength);
+            float y = Random.Range(-shakeStrength, shakeStrength);
 
             healthPanel.localPosition =
                 originalPos + new Vector3(x, y, 0);
