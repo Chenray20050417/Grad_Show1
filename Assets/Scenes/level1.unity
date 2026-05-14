@@ -432,7 +432,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &144749734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -650,7 +650,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.00012207031, y: 0}
+  m_AnchoredPosition: {x: -0.00024414062, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!1 &270665827
@@ -984,9 +984,10 @@ MonoBehaviour:
   minX: 95
   maxX: 123
   spawnY: 200
+  targetYOffset: 2.5
   minSpawnCount: 0
   maxSpawnCount: 1
-  moveSpeed: 3.5
+  moveSpeed: 2
 --- !u!1 &398452322
 GameObject:
   m_ObjectHideFlags: 0
@@ -1828,7 +1829,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5566038, g: 0.07939439, b: 0.007876454, a: 0.392}
+  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2227,7 +2228,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04e8f971d0219424e8f2392d49bb564d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeTime: 1
+  activeTime: 1.5
   isAttacking: 0
 --- !u!1 &945015576
 GameObject:
@@ -2398,7 +2399,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bab9a5aa63ff17940b2083edc545d5ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalTime: 10
+  totalTime: 90
   currentTime: 0
   timerText: {fileID: 1991377113}
   timerPanel: {fileID: 976575841}
@@ -2598,6 +2599,7 @@ MonoBehaviour:
   runningMode: 0
   _poseLandmarkerResultAnnotationController: {fileID: 1006057044}
   shoulderPressDetector: {fileID: 368392265}
+  squatDetector: {fileID: 0}
   boxingDetector: {fileID: 0}
   menuGestureController: {fileID: 0}
 --- !u!1 &1076655444
@@ -3511,7 +3513,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1572295792
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4506,7 +4508,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23de491608723684d8a1c7a71e309b39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fingerCursor: {fileID: 0}
+  fingerCursor: {fileID: 1572295792}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   hoverColor: {r: 0.65, g: 0.65, b: 0.65, a: 1}
 --- !u!1001 &2051424033
@@ -4976,15 +4978,15 @@ SceneRoots:
   - {fileID: 1872375277}
   - {fileID: 165306390}
   - {fileID: 465100616}
-  - {fileID: 368392266}
+  - {fileID: 8571076842648159877}
   - {fileID: 1064799461}
+  - {fileID: 368392266}
   - {fileID: 386859605}
-  - {fileID: 1583931217}
   - {fileID: 144749736}
-  - {fileID: 1709085966}
   - {fileID: 2050616632}
   - {fileID: 787951329}
-  - {fileID: 8571076842648159877}
+  - {fileID: 1583931217}
   - {fileID: 1088464257}
   - {fileID: 1704816564}
   - {fileID: 1972972202}
+  - {fileID: 1709085966}

@@ -15,6 +15,9 @@ public class StressBallSpawner : MonoBehaviour
     public float maxX = 123f;
     public float spawnY = 215f;
 
+    [Header("鎖定位置")]
+    public float targetYOffset = 2.5f; // 鎖定主角頭上方
+
     [Header("數量")]
     public int minSpawnCount = 1;
     public int maxSpawnCount = 1;
@@ -70,7 +73,12 @@ public class StressBallSpawner : MonoBehaviour
             {
                 sb.moveSpeed = moveSpeed;
 
-                Vector2 dir = player.position - spawnPos;
+                Vector2 targetPos = new Vector2(
+                    player.position.x,
+                    player.position.y + targetYOffset
+                );
+
+                Vector2 dir = targetPos - (Vector2)spawnPos;
                 sb.SetDirection(dir);
             }
         }

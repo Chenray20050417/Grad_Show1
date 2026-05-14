@@ -8,7 +8,7 @@ public class TestPushKey : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            animator.Play("push", 0, 0f);
+            animator.Play("squat2", 0, 0f);
         }
     }
 }

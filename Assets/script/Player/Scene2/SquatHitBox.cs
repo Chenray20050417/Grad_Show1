@@ -1,16 +1,11 @@
 using UnityEngine;
 
-public class PushHitBoxController : MonoBehaviour
+public class SquatHitBox : MonoBehaviour
 {
     public Collider2D hitBox;
-
-    [Header("啟動時間")]
     public float activeTime = 0.2f;
 
-    [HideInInspector]
-    public bool isAttacking = false;
-
-    private float timer = 0f;
+    private float timer;
 
     void Awake()
     {
@@ -30,21 +25,16 @@ public class PushHitBoxController : MonoBehaviour
             {
                 hitBox.enabled = false;
 
-                isAttacking = false;
-
-                Debug.Log("PushHitBox 關閉");
+                Debug.Log("HitBox 關閉");
             }
         }
     }
 
-    public void ActivateHitBox()
+    public void OpenHitBox()
     {
         hitBox.enabled = true;
-
-        isAttacking = true;
-
         timer = activeTime;
 
-        Debug.Log("PushHitBox 開啟");
+        Debug.Log("HitBox 開啟");
     }
 }

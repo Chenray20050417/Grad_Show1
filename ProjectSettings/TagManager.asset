@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Global Resource
   - PlayerPush
+  - PushHitBox
   layers:
   - Default
   - TransparentFX
