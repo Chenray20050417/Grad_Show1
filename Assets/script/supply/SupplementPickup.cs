@@ -22,16 +22,29 @@ public class SupplementPickup : MonoBehaviour
         {
             picked = true;
 
+            if (InventoryManager.Instance == null)
+            {
+                picked = false;
+                return;
+            }
+
             bool success = InventoryManager.Instance.AddItem(type);
 
             if (success)
-            {
-                Destroy(gameObject);
-            }
-            else
-            {
-                picked = false;
-            }
+{
+    Debug.Log("顯示補劑說明：" + type);
+
+    if (SupplementEffectUI.Instance != null)
+    {
+        SupplementEffectUI.Instance.ShowSupplementEffect(type);
+    }
+    else
+    {
+        Debug.LogError("找不到 SupplementEffectUI.Instance");
+    }
+
+    Destroy(gameObject);
+}
         }
         else
         {

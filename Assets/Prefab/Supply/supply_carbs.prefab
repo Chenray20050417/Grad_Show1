@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 2
-  proteinEffect: {fileID: 6842737157436168549, guid: f2fb6006f25f4854ca35262535dd5215, type: 3}
+  proteinEffect: {fileID: 0}
   creatineEffect: {fileID: 0}
   riceEffect: {fileID: 0}
   testosteroneEffect: {fileID: 0}

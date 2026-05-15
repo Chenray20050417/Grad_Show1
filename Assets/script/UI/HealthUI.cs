@@ -4,23 +4,30 @@ using System.Collections;
 
 public class HealthUI : MonoBehaviour
 {
+    public static HealthUI Instance;
+
     [Header("血條")]
     public Slider healthSlider;
 
     public float maxHealth = 100f;
-    public float currentHealth = 100f;
+    public float startHealth = 100f;
+    public float currentHealth;
 
     [Header("UI震動")]
     public RectTransform healthPanel;
-
     public float shakeDuration = 0.2f;
     public float shakeStrength = 10f;
 
     private Vector3 originalPos;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
-        currentHealth = maxHealth;
+        currentHealth = Mathf.Clamp(startHealth, 0, maxHealth);
 
         if (healthSlider != null)
         {
@@ -46,8 +53,7 @@ public class HealthUI : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        if (healthSlider != null)
-            healthSlider.value = currentHealth;
+        UpdateHealthUI();
 
         if (healthPanel != null)
         {
@@ -61,13 +67,32 @@ public class HealthUI : MonoBehaviour
         currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        if (healthSlider != null)
-            healthSlider.value = currentHealth;
+        UpdateHealthUI();
+
+        Debug.Log("回血：" + amount);
+    }
+
+    public void HealPercent(float percent)
+    {
+        float healAmount = maxHealth * percent;
+
+        currentHealth += healAmount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        UpdateHealthUI();
+
+        Debug.Log("回血：" + healAmount);
     }
 
     public bool IsDead()
     {
         return currentHealth <= 0;
+    }
+
+    private void UpdateHealthUI()
+    {
+        if (healthSlider != null)
+            healthSlider.value = currentHealth;
     }
 
     IEnumerator ShakeRoutine()

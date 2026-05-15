@@ -27,6 +27,17 @@ public class GameTimer : MonoBehaviour
 
     private Vector3 originalPos;
     private int lastShakeSecond = -1;
+    public static GameTimer Instance;
+    private void Awake()
+{
+    Instance = this;
+}
+public void AddTime(float amount)
+{
+    currentTime += amount;
+
+    Debug.Log("增加時間：" + amount);
+}
 
     void Start()
     {

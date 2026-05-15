@@ -1,128 +1,167 @@
 using UnityEngine;
 using UnityEngine.UI;
-
-public enum SupplementType
-{
-    Protein,
-    Creatine,
-    Rice,
-    Testosterone,
-    Vitamin
-}
+using System.Collections.Generic;
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
 
-    [Header("Slot Icon")]
-    public Image[] slotImages = new Image[3];
+    [Header("物品欄設定")]
+    public int maxItemCount = 3;
 
-    [Header("補劑 Icon")]
+    [Header("物品欄圖片")]
+    public Image[] slotImages;
+
+    [Header("物品欄 Slot")]
+    public RectTransform[] slots;
+
+    [Header("補劑圖示")]
     public Sprite proteinIcon;
     public Sprite creatineIcon;
     public Sprite riceIcon;
     public Sprite testosteroneIcon;
     public Sprite vitaminIcon;
 
-    private SupplementType[] items = new SupplementType[3];
-    private bool[] hasItem = new bool[3];
+    [Header("目前數量")]
+    public int currentItemCount;
 
-    void Awake()
+    private List<SupplementType> items = new List<SupplementType>();
+
+    private void Awake()
     {
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
-        ClearUI();
+        UpdateUI();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            UseItem(0);
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+            UseItem(1);
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+            UseItem(2);
     }
 
     public bool AddItem(SupplementType type)
     {
-        for (int i = 0; i < 3; i++)
+        if (items.Count >= maxItemCount)
         {
-            if (!hasItem[i])
-            {
-                items[i] = type;
-                hasItem[i] = true;
-
-                UpdateUI();
-
-                Debug.Log("加入道具到第 " + (i + 1) + " 格：" + type);
-                return true;
-            }
+            Debug.Log("物品欄滿了");
+            return false;
         }
 
-        Debug.Log("物品欄滿了");
-        return false;
+        items.Add(type);
+        currentItemCount = items.Count;
+
+        UpdateUI();
+
+        Debug.Log("加入物品欄：" + type);
+        return true;
     }
 
     public void UseItem(int index)
     {
-        if (index < 0 || index >= 3)
-            return;
-
-        if (!hasItem[index])
+        if (index < 0 || index >= items.Count)
         {
-            Debug.Log("第 " + (index + 1) + " 格沒有道具");
+            Debug.Log("這格沒有道具：" + (index + 1));
             return;
         }
 
-        Debug.Log("使用第 " + (index + 1) + " 格道具：" + items[index]);
+        SupplementType type = items[index];
 
-        hasItem[index] = false;
-        items[index] = default;
+        Debug.Log("使用補劑：" + type);
+
+        ApplyEffect(type);
+
+     
+        items.RemoveAt(index);
+        currentItemCount = items.Count;
 
         UpdateUI();
     }
 
-    void UpdateUI()
+    private void ApplyEffect(SupplementType type)
     {
-        for (int i = 0; i < 3; i++)
+        switch (type)
         {
-            if (slotImages[i] == null)
-                continue;
+            case SupplementType.Protein:
+                if (GameTimer.Instance != null)
+                {
+                    GameTimer.Instance.AddTime(10f);
+                    Debug.Log("蛋白粉效果：時間 +10 秒");
+                }
+                else
+                {
+                    Debug.LogError("找不到 GameTimer.Instance");
+                }
+                break;
 
-            if (hasItem[i])
+            case SupplementType.Creatine:
+                if (HealthUI.Instance != null)
+                {
+                    HealthUI.Instance.HealPercent(0.15f);
+                    Debug.Log("肌酸效果：回血 15%");
+                }
+                break;
+
+            case SupplementType.Rice:
+                Debug.Log("白飯保留");
+                break;
+
+            case SupplementType.Testosterone:
+                Debug.Log("睪固酮效果：無敵 5 秒");
+                break;
+
+            case SupplementType.Vitamin:
+                Debug.Log("維他命保留");
+                break;
+        }
+    }
+
+    private void UpdateUI()
+    {
+        for (int i = 0; i < slotImages.Length; i++)
+        {
+            if (i < items.Count)
             {
-                slotImages[i].enabled = true;
                 slotImages[i].sprite = GetIcon(items[i]);
+                slotImages[i].enabled = true;
                 slotImages[i].color = Color.white;
             }
             else
             {
-                slotImages[i].enabled = false;
                 slotImages[i].sprite = null;
+                slotImages[i].enabled = false;
             }
         }
     }
 
-    void ClearUI()
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            if (slotImages[i] != null)
-            {
-                slotImages[i].enabled = false;
-                slotImages[i].sprite = null;
-            }
-        }
-    }
-
-    Sprite GetIcon(SupplementType type)
+public Sprite GetIcon(SupplementType type)
     {
         switch (type)
         {
             case SupplementType.Protein:
                 return proteinIcon;
+
             case SupplementType.Creatine:
                 return creatineIcon;
+
             case SupplementType.Rice:
                 return riceIcon;
+
             case SupplementType.Testosterone:
                 return testosteroneIcon;
+
             case SupplementType.Vitamin:
                 return vitaminIcon;
+
             default:
                 return null;
         }

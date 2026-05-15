@@ -21,6 +21,9 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 [SerializeField] private PauseGestureController pauseGestureController;
 [SerializeField] private HandUIController handUIController;
 
+
+[SerializeField] private HandUseItemController handUseItemController;
+
     private Experimental.TextureFramePool _textureFramePool;
 
     public readonly HandLandmarkDetectionConfig config = new HandLandmarkDetectionConfig();
@@ -178,6 +181,35 @@ private void OnHandLandmarkDetectionOutput(
 
         if (handUIController != null)
             handUIController.CheckHand(result.handLandmarks[0]);
+
+             
+
+
+          if (result.handLandmarks != null &&
+    result.handedness != null &&
+    result.handLandmarks.Count > 0)
+{
+    for (int i = 0; i < result.handLandmarks.Count; i++)
+    {
+        string handLabel =
+            result.handedness[i].categories[0].categoryName;
+
+        Debug.Log("目前手：" + handLabel);
+
+        // 實際右手
+        if (handLabel == "Left")
+        {
+            if (handUseItemController != null)
+            {
+                handUseItemController.CheckHand(
+                    result.handLandmarks[i]);
+            }
+        }
+    }
+}
+
+
+
     }
 }
   }
