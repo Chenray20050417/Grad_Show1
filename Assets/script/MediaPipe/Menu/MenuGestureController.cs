@@ -17,9 +17,12 @@ public class MenuGestureController : MonoBehaviour
     [Header("手部游標")]
     public RectTransform fingerCursor;
     public bool mirrorX = true;
+    public int rightHandPoseIndex = 15;
 
     [Header("握拳點擊")]
     public float clickCooldown = 1f;
+    public bool rightHandOnly = true;
+    public float rightHandMaxDistance = 0.25f;
 
     private Vector3 originalPos;
 
@@ -29,6 +32,7 @@ public class MenuGestureController : MonoBehaviour
     private float handX = 0.5f;
     private float handY = 0.5f;
     private bool hasHand = false;
+    private bool hasRightHandPose = false;
 
     private bool lastFist = false;
     private bool requestClick = false;
@@ -59,7 +63,7 @@ public class MenuGestureController : MonoBehaviour
 
     public void CheckPose(NormalizedLandmark[] lm)
     {
-        if (lm == null || lm.Length < 17) return;
+        if (lm == null || lm.Length <= rightHandPoseIndex) return;
 
         float noseX = lm[0].x;
         float noseY = lm[0].y;
@@ -67,8 +71,8 @@ public class MenuGestureController : MonoBehaviour
         float bgX = -(noseX - 0.5f) * moveRangeX * 2f;
         float bgY = (noseY - 0.5f) * moveRangeY * 2f;
 
-        float x = lm[16].x;
-        float y = lm[16].y;
+        float x = lm[rightHandPoseIndex].x;
+        float y = lm[rightHandPoseIndex].y;
 
         if (mirrorX)
             x = 1f - x;
@@ -81,6 +85,7 @@ public class MenuGestureController : MonoBehaviour
             handX = x;
             handY = y;
             hasHand = true;
+            hasRightHandPose = true;
         }
     }
 public void CheckHand(NormalizedLandmarks lm)
@@ -90,15 +95,59 @@ public void CheckHand(NormalizedLandmarks lm)
 
     bool fist = IsFist(lm);
 
+    if (rightHandOnly && !IsNearRightHand(lm))
+    {
+        if (fist)
+            Debug.Log("忽略非右手握拳");
+
+        lastFist = false;
+        return;
+    }
+
     if (fist)
     {
         Debug.Log("👊 握拳");
+
+        if (!lastFist)
+            requestClick = true;
     }
     else
     {
         Debug.Log("🖐 張開");
     }
+
+    lastFist = fist;
 }
+
+    bool IsNearRightHand(NormalizedLandmarks lm)
+    {
+        float rightX;
+        float rightY;
+        bool hasPose;
+
+        lock (poseLock)
+        {
+            rightX = handX;
+            rightY = handY;
+            hasPose = hasRightHandPose;
+        }
+
+        if (!hasPose)
+            return true;
+
+        float wristX = lm.landmarks[0].x;
+        float wristY = lm.landmarks[0].y;
+
+        if (mirrorX)
+            wristX = 1f - wristX;
+
+        float distance = Vector2.Distance(
+            new Vector2(wristX, wristY),
+            new Vector2(rightX, rightY)
+        );
+
+        return distance <= rightHandMaxDistance;
+    }
 
     bool IsFist(NormalizedLandmarks lm)
     {
@@ -144,8 +193,13 @@ public void CheckHand(NormalizedLandmarks lm)
         PointerEventData pointer =
             new PointerEventData(EventSystem.current);
 
+        Camera uiCamera = null;
+
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            uiCamera = canvas.worldCamera;
+
         pointer.position =
-            RectTransformUtility.WorldToScreenPoint(null, fingerCursor.position);
+            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
 
         var results =
             new System.Collections.Generic.List<RaycastResult>();
@@ -157,6 +211,9 @@ public void CheckHand(NormalizedLandmarks lm)
         foreach (var r in results)
         {
             Button btn = r.gameObject.GetComponent<Button>();
+
+            if (btn == null)
+                btn = r.gameObject.GetComponentInParent<Button>();
 
             if (btn != null)
             {

@@ -12,6 +12,21 @@ EditorBuildSettings:
     path: Assets/Scenes/level1.unity
     guid: 08daeaec199575a4b98a6314293f1834
   - enabled: 1
+    path: Assets/Scenes/ComicScene1.unity
+    guid: e128964b5f6fe244e8f2b98439b4ee97
+  - enabled: 1
     path: Assets/Scenes/level2.unity
     guid: 8b0bea56a0ea4ff4a9a9319f29f76f62
+  - enabled: 1
+    path: Assets/Scenes/ComicScene2.unity
+    guid: 322d3128201e7834dae5709acbbcbcd7
+  - enabled: 1
+    path: Assets/Scenes/Level3.unity
+    guid: 9a068b0cda73a8241a9d884d04f46fc2
+  - enabled: 1
+    path: Assets/Scenes/ComicScene3.unity
+    guid: 35d3a5ac81ee5b04f905446877b98f5a
+  - enabled: 1
+    path: Assets/Scenes/ComicScene4.unity
+    guid: fadf5f5572c7c8449abc2c2adca931c2
   m_configObjects: {}

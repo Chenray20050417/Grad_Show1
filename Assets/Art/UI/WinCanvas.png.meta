@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 17637ea490b1bc849bd404be85720417
+guid: f93aa09b973d887428fc7b8508b49cd9
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -108,70 +108,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: Settingbuttom
-      rect:
-        serializedVersion: 2
-        x: 538
-        y: 372
-        width: 450
-        height: 300
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6e16030273492bc4782dbcba356578dc
-      internalID: 1296985737
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Exitbuttom
-      rect:
-        serializedVersion: 2
-        x: 1022
-        y: 371
-        width: 450
-        height: 300
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 239b86b9c74630048b27531a1ff7d503
-      internalID: -180930561
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Startbuttom
-      rect:
-        serializedVersion: 2
-        x: 52
-        y: 369
-        width: 450
-        height: 300
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 64c12fecb5117f44d865e45299f6b985
-      internalID: -60291659
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
@@ -182,16 +119,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      Exitbuttom: -180930561
-      Meunbuttom_0: 924514464
-      Meunbuttom_4: -666677889
-      Meunbuttom_5: 1119670033
-      Meunbuttom_6: -1265272048
-      Meunbuttom_7: 1066806566
-      Meunbuttom_8: 330106071
-      Settingbuttom: 1296985737
-      Startbuttom: -60291659
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

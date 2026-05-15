@@ -10,6 +10,7 @@ public class HandCursorController : MonoBehaviour
     public GameObject pauseCanvas;
     public GameObject failCanvas;
     public GameObject passCanvas;
+    public bool forceShowCursor = false;
 
     public float smoothSpeed = 20f;
 
@@ -52,7 +53,7 @@ public class HandCursorController : MonoBehaviour
         bool failOpen = failCanvas != null && failCanvas.activeSelf;
         bool passOpen = passCanvas != null && passCanvas.activeSelf;
 
-        bool uiOpened = pauseOpen || failOpen || passOpen;
+        bool uiOpened = forceShowCursor || pauseOpen || failOpen || passOpen;
 
         if (fingerCursor != null)
             fingerCursor.gameObject.SetActive(uiOpened);

@@ -1,7 +1,12 @@
 using UnityEngine;
+using System.Collections;
 
 public class LevelPassManager : MonoBehaviour
 {
+    [Header("測試")]
+    public bool showPassCanvasOnStart = false;
+    public GameObject testCanvasOnStart;
+
     [Header("Canvas")]
     public GameObject passCanvas;
     public GameObject failCanvas;
@@ -19,6 +24,29 @@ public class LevelPassManager : MonoBehaviour
 
         if (failCanvas != null)
             failCanvas.SetActive(false);
+
+        if (showPassCanvasOnStart && testCanvasOnStart == null)
+            testCanvasOnStart = passCanvas;
+
+        if (testCanvasOnStart != null)
+            StartCoroutine(ShowTestCanvasOnStart());
+    }
+
+    IEnumerator ShowTestCanvasOnStart()
+    {
+        yield return null;
+
+        resultShown = true;
+        Time.timeScale = 0f;
+
+        if (passCanvas != null)
+            passCanvas.SetActive(passCanvas == testCanvasOnStart);
+
+        if (failCanvas != null)
+            failCanvas.SetActive(failCanvas == testCanvasOnStart);
+
+        if (testCanvasOnStart != null)
+            testCanvasOnStart.SetActive(true);
     }
 
     void Update()

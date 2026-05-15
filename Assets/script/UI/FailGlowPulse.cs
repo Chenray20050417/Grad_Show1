@@ -16,7 +16,9 @@ public class FailGlowPulse : MonoBehaviour
 
     void Update()
     {
-        float t = (Mathf.Sin(Time.time * speed) + 1f) / 2f;
+        if (img == null) return;
+
+        float t = (Mathf.Sin(Time.unscaledTime * speed) + 1f) / 2f;
 
         Color c = img.color;
         c.a = Mathf.Lerp(minAlpha, maxAlpha, t);
