@@ -20,6 +20,8 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 [SerializeField] private HandCursorController handCursorController;
 [SerializeField] private PauseGestureController pauseGestureController;
 [SerializeField] private HandUIController handUIController;
+[SerializeField] private CinematicTrailerController cinematicTrailerController;
+[SerializeField] private LevelIntroTutorialController levelIntroTutorialController;
 
 
 [SerializeField] private HandUseItemController handUseItemController;
@@ -64,9 +66,15 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
       _textureFramePool = new Experimental.TextureFramePool(imageSource.textureWidth, imageSource.textureHeight, TextureFormat.RGBA32, 10);
 
       // NOTE: The screen will be resized later, keeping the aspect ratio.
-      screen.Initialize(imageSource);
+      if (screen != null)
+      {
+        screen.Initialize(imageSource);
+      }
 
-      SetupAnnotationController(_handLandmarkerResultAnnotationController, imageSource);
+      if (_handLandmarkerResultAnnotationController != null)
+      {
+        SetupAnnotationController(_handLandmarkerResultAnnotationController, imageSource);
+      }
 
       var transformationOptions = imageSource.GetTransformationOptions();
       var flipHorizontally = transformationOptions.flipHorizontally;
@@ -136,21 +144,33 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
           case Tasks.Vision.Core.RunningMode.IMAGE:
             if (taskApi.TryDetect(image, imageProcessingOptions, ref result))
             {
-              _handLandmarkerResultAnnotationController.DrawNow(result);
+              if (_handLandmarkerResultAnnotationController != null)
+              {
+                _handLandmarkerResultAnnotationController.DrawNow(result);
+              }
             }
             else
             {
-              _handLandmarkerResultAnnotationController.DrawNow(default);
+              if (_handLandmarkerResultAnnotationController != null)
+              {
+                _handLandmarkerResultAnnotationController.DrawNow(default);
+              }
             }
             break;
           case Tasks.Vision.Core.RunningMode.VIDEO:
             if (taskApi.TryDetectForVideo(image, GetCurrentTimestampMillisec(), imageProcessingOptions, ref result))
             {
-              _handLandmarkerResultAnnotationController.DrawNow(result);
+              if (_handLandmarkerResultAnnotationController != null)
+              {
+                _handLandmarkerResultAnnotationController.DrawNow(result);
+              }
             }
             else
             {
-              _handLandmarkerResultAnnotationController.DrawNow(default);
+              if (_handLandmarkerResultAnnotationController != null)
+              {
+                _handLandmarkerResultAnnotationController.DrawNow(default);
+              }
             }
             break;
           case Tasks.Vision.Core.RunningMode.LIVE_STREAM:
@@ -160,57 +180,87 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
       }
     }
 
-private void OnHandLandmarkDetectionOutput(
-    HandLandmarkerResult result,
-    Image image,
-    long timestamp)
-{
-    _handLandmarkerResultAnnotationController.DrawLater(result);
-
-    if (result.handLandmarks != null &&
-        result.handLandmarks.Count > 0)
+    private void OnHandLandmarkDetectionOutput(
+      HandLandmarkerResult result,
+      Image image,
+      long timestamp)
     {
-        if (menuGestureController != null)
-            menuGestureController.CheckHand(result.handLandmarks[0]);
+      if (_handLandmarkerResultAnnotationController != null)
+      {
+        _handLandmarkerResultAnnotationController.DrawLater(result);
+      }
 
-        if (yaGesturePauseController != null)
-            yaGesturePauseController.CheckHand(result.handLandmarks[0]);
+      if (result.handLandmarks == null || result.handLandmarks.Count == 0)
+      {
+        if (levelIntroTutorialController != null)
+        {
+          levelIntroTutorialController.ClearHands();
+        }
 
-        if (handCursorController != null)
-            handCursorController.CheckHand(result.handLandmarks[0]);
+        if (cinematicTrailerController != null)
+        {
+          cinematicTrailerController.ClearHand();
+        }
 
-        if (handUIController != null)
-            handUIController.CheckHand(result.handLandmarks[0]);
+        return;
+      }
 
-             
+      if (menuGestureController != null)
+        menuGestureController.CheckHand(result.handLandmarks[0]);
 
+      if (yaGesturePauseController != null)
+        yaGesturePauseController.CheckHand(result.handLandmarks[0]);
 
-          if (result.handLandmarks != null &&
-    result.handedness != null &&
-    result.handLandmarks.Count > 0)
-{
-    for (int i = 0; i < result.handLandmarks.Count; i++)
-    {
-        string handLabel =
-            result.handedness[i].categories[0].categoryName;
+      if (handCursorController != null)
+        handCursorController.CheckHand(result.handLandmarks[0]);
+
+      if (handUIController != null)
+        handUIController.CheckHand(result.handLandmarks[0]);
+
+      if (levelIntroTutorialController != null)
+        levelIntroTutorialController.CheckHands(result.handLandmarks);
+
+      if (result.handedness == null)
+      {
+        if (cinematicTrailerController != null)
+        {
+          cinematicTrailerController.ClearHand();
+        }
+
+        return;
+      }
+
+      int handCount = Mathf.Min(result.handLandmarks.Count, result.handedness.Count);
+      bool checkedCinematicSkipHand = false;
+
+      for (int i = 0; i < handCount; i++)
+      {
+        if (result.handedness[i].categories == null || result.handedness[i].categories.Count == 0)
+        {
+          continue;
+        }
+
+        string handLabel = result.handedness[i].categories[0].categoryName;
 
         Debug.Log("目前手：" + handLabel);
 
-        // 實際右手
-        if (handLabel == "Left")
+        if (cinematicTrailerController != null && cinematicTrailerController.IsSkipHandLabel(handLabel))
         {
-            if (handUseItemController != null)
-            {
-                handUseItemController.CheckHand(
-                    result.handLandmarks[i]);
-            }
+          cinematicTrailerController.CheckHand(result.handLandmarks[i], handLabel);
+          checkedCinematicSkipHand = true;
         }
+
+        // 實際右手
+        if (handLabel == "Left" && handUseItemController != null)
+        {
+          handUseItemController.CheckHand(result.handLandmarks[i]);
+        }
+      }
+
+      if (cinematicTrailerController != null && !checkedCinematicSkipHand)
+      {
+        cinematicTrailerController.ClearHand();
+      }
     }
-}
-
-
-
-    }
-}
   }
  }

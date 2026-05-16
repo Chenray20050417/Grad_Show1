@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: f5d87f3f3ac70b34c94dfe2fdc1479c1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 67cd370a265d53544877875330cdf44b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -161,4 +161,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 603c4e05b3f7eb748843de0def7ba0c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 5
+  moveSpeed: 8
+  damage: 10
+  breakEffectPrefab: {fileID: 1196714810902302300, guid: d3ce573577bcc52468b32fd4ac051333, type: 3}
+  breakEffectSprite: {fileID: 21300000, guid: 67cd370a265d53544877875330cdf44b, type: 3}
+  breakEffectScale: 1
+  breakEffectLifetime: 0.2

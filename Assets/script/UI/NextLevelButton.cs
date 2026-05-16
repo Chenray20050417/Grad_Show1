@@ -17,7 +17,7 @@ public class NextLevelButton : MonoBehaviour
         if (!string.IsNullOrEmpty(nextSceneName))
         {
             Debug.Log("前往下一關：" + nextSceneName);
-            SceneManager.LoadScene(nextSceneName);
+            SceneTransitionManager.LoadScene(nextSceneName);
             return;
         }
 
@@ -26,12 +26,12 @@ public class NextLevelButton : MonoBehaviour
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             Debug.Log("前往下一關 Index：" + nextSceneIndex);
-            SceneManager.LoadScene(nextSceneIndex);
+            SceneTransitionManager.LoadScene(nextSceneIndex);
         }
         else
         {
             Debug.Log("沒有下一關，回到：" + fallbackSceneName);
-            SceneManager.LoadScene(fallbackSceneName);
+            SceneTransitionManager.LoadScene(fallbackSceneName);
         }
     }
 }

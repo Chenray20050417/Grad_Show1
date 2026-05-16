@@ -161,4 +161,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 603c4e05b3f7eb748843de0def7ba0c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fallSpeed: 5
+  moveSpeed: 8
+  damage: 10
+  breakEffectPrefab: {fileID: 2581877713984386396, guid: 46aee183cd6507645b6c7d92fbf27be3, type: 3}
+  breakEffectSprite: {fileID: 21300000, guid: 30b7d9146948b0a46bf3fd94c2cc6398, type: 3}
+  breakEffectScale: 1
+  breakEffectLifetime: 0.2
