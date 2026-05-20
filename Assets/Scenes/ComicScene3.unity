@@ -450,6 +450,7 @@ MonoBehaviour:
     - clip: {fileID: 8300000, guid: 27dfc40bf38369446abd6efc4b73b194, type: 3}
       delay: 0
       shake: 1
+  nextSceneName: ComicScene4
   shakeDuration: 0.35
   shakeStrength: 20
 --- !u!4 &1272588983

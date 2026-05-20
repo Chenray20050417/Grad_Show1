@@ -30,6 +30,9 @@ public class ComicCutscene : MonoBehaviour
     [Header("所有 Key Frame")]
     public ComicFrame[] frames;
 
+    [Header("結束後前往場景")]
+    public string nextSceneName = "level2";
+
     [Header("震動設定")]
     public float shakeDuration = 0.45f;
     public float shakeStrength = 55f;
@@ -50,6 +53,7 @@ public class ComicCutscene : MonoBehaviour
     private bool isShaking = false;
     private float shakeTimer = 0f;
     private Vector2 shakeBasePos;
+    private bool hasFinished = false;
 
     void Awake()
     {
@@ -108,7 +112,10 @@ public class ComicCutscene : MonoBehaviour
     void StartMoveToNextFrame()
     {
         if (currentFrame >= frames.Length - 1)
+        {
+            FinishCutscene();
             return;
+        }
 
         moving = true;
         timer = 0f;
@@ -161,7 +168,24 @@ public class ComicCutscene : MonoBehaviour
             return;
         }
 
+        if (currentFrame >= frames.Length - 1)
+        {
+            FinishCutscene();
+            return;
+        }
+
         StartMoveToNextFrame();
+    }
+
+    void FinishCutscene()
+    {
+        if (hasFinished)
+            return;
+
+        hasFinished = true;
+
+        if (!string.IsNullOrEmpty(nextSceneName))
+            SceneTransitionManager.LoadScene(nextSceneName);
     }
 
     void PlayCurrentVoice()

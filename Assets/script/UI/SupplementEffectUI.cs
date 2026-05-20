@@ -17,6 +17,7 @@ public class SupplementEffectUI : MonoBehaviour
     public GameObject overlay;
 
     [Header("慢動作設定")]
+    [Range(0.01f, 1f)]
     public float slowMotionScale = 0.15f;
     public float showTime = 3f;
     public float recoverSpeed = 2f;
@@ -68,8 +69,9 @@ public class SupplementEffectUI : MonoBehaviour
     private IEnumerator ShowRoutine(SupplementType type)
     {
         float originalFixedDelta = Time.fixedDeltaTime;
+        float safeSlowMotionScale = Mathf.Clamp(slowMotionScale, 0.01f, 1f);
 
-        Time.timeScale = slowMotionScale;
+        Time.timeScale = safeSlowMotionScale;
         Time.fixedDeltaTime = originalFixedDelta * Time.timeScale;
 
         if (overlay != null)
@@ -131,7 +133,7 @@ public class SupplementEffectUI : MonoBehaviour
         {
             recoverTimer += Time.unscaledDeltaTime * recoverSpeed;
 
-            Time.timeScale = Mathf.Lerp(slowMotionScale, 1f, recoverTimer);
+            Time.timeScale = Mathf.Lerp(safeSlowMotionScale, 1f, recoverTimer);
             Time.fixedDeltaTime = originalFixedDelta * Time.timeScale;
 
             float scale = Mathf.Lerp(1.3f, 1f, recoverTimer);
@@ -249,7 +251,7 @@ public class SupplementEffectUI : MonoBehaviour
                 return "白飯\n效果保留";
 
             case SupplementType.Vitamin:
-                return "維他命\n效果保留";
+                return "維他命\n慢動作 10 秒";
 
             default:
                 return "補劑";

@@ -2,6 +2,12 @@ using UnityEngine;
 
 public class StressBallSpawner : MonoBehaviour
 {
+    public enum SpawnMode
+    {
+        AimAtPlayer,
+        Horizontal
+    }
+
     [Header("壓力球")]
     public GameObject[] stressBallPrefabs;
 
@@ -15,6 +21,19 @@ public class StressBallSpawner : MonoBehaviour
     public float maxX = 123f;
     public float spawnY = 215f;
 
+    [Header("第三關水平飛行")]
+    public SpawnMode spawnMode = SpawnMode.AimAtPlayer;
+    public bool spawnFromRight = true;
+    public float horizontalSpawnX = 170f;
+    public bool usePlayerCenteredHorizontalSpawn = false;
+    public float horizontalSpawnOffset = 16f;
+    public float horizontalMinY = 188f;
+    public float horizontalMaxY = 208f;
+
+    [Header("第三關左右交換")]
+    public bool autoSwitchHorizontalSide = false;
+    public float sideSwitchInterval = 20f;
+
     [Header("鎖定位置")]
     public float targetYOffset = 2.5f; // 鎖定主角頭上方
 
@@ -25,9 +44,22 @@ public class StressBallSpawner : MonoBehaviour
     [Header("速度")]
     public float moveSpeed = 8f;
 
+    private float sideSwitchTimer = 0f;
+
     void Start()
     {
         InvokeRepeating(nameof(SpawnBall), 1f, spawnInterval);
+    }
+
+    void Update()
+    {
+        if (!autoSwitchHorizontalSide || spawnMode != SpawnMode.Horizontal) return;
+
+        sideSwitchTimer += Time.deltaTime;
+        if (sideSwitchTimer < sideSwitchInterval) return;
+
+        sideSwitchTimer = 0f;
+        spawnFromRight = !spawnFromRight;
     }
 
     void SpawnBall()
@@ -53,13 +85,7 @@ public class StressBallSpawner : MonoBehaviour
 
             if (prefab == null) continue;
 
-            float randomX = Random.Range(minX, maxX);
-
-            Vector3 spawnPos = new Vector3(
-                randomX,
-                spawnY,
-                player.position.z
-            );
+            Vector3 spawnPos = GetSpawnPosition();
 
             GameObject ball = Instantiate(
                 prefab,
@@ -72,15 +98,50 @@ public class StressBallSpawner : MonoBehaviour
             if (sb != null)
             {
                 sb.moveSpeed = moveSpeed;
-
-                Vector2 targetPos = new Vector2(
-                    player.position.x,
-                    player.position.y + targetYOffset
-                );
-
-                Vector2 dir = targetPos - (Vector2)spawnPos;
-                sb.SetDirection(dir);
+                sb.SetDirection(GetMoveDirection(spawnPos));
             }
         }
+    }
+
+    private Vector3 GetSpawnPosition()
+    {
+        if (spawnMode == SpawnMode.Horizontal)
+        {
+            float y = Random.Range(horizontalMinY, horizontalMaxY);
+            float x = GetHorizontalSpawnX();
+
+            return new Vector3(x, y, player.position.z);
+        }
+
+        float randomX = Random.Range(minX, maxX);
+
+        return new Vector3(
+            randomX,
+            spawnY,
+            player.position.z
+        );
+    }
+
+    private Vector2 GetMoveDirection(Vector3 spawnPos)
+    {
+        if (spawnMode == SpawnMode.Horizontal)
+            return spawnFromRight ? Vector2.left : Vector2.right;
+
+        Vector2 targetPos = new Vector2(
+            player.position.x,
+            player.position.y + targetYOffset
+        );
+
+        return targetPos - (Vector2)spawnPos;
+    }
+
+    private float GetHorizontalSpawnX()
+    {
+        if (!usePlayerCenteredHorizontalSpawn)
+            return spawnFromRight ? horizontalSpawnX : -horizontalSpawnX;
+
+        float centerX = player != null ? player.position.x : 0f;
+        float offset = Mathf.Abs(horizontalSpawnOffset);
+        return centerX + (spawnFromRight ? offset : -offset);
     }
 }

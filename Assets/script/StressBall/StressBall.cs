@@ -16,6 +16,12 @@ public class StressBall : MonoBehaviour
 
     private Vector2 moveDirection;
     private bool isDestroyed = false;
+    private Collider2D stressBallCollider;
+
+    private void Awake()
+    {
+        stressBallCollider = GetComponent<Collider2D>();
+    }
 
     public void SetDirection(Vector2 dir)
     {
@@ -44,8 +50,10 @@ public class StressBall : MonoBehaviour
     {
         if (isDestroyed) return;
 
-        // 肩推成功：壓力球消失，不扣血
-        if (other.CompareTag("PlayerPush"))
+        // 出拳/肩推成功：壓力球消失，不扣血
+        if (other.CompareTag("PlayerPush") ||
+            other.CompareTag("PushHitBox") ||
+            other.GetComponentInParent<PushHitBoxController>() != null)
         {
             DestroySelf(true);
             return;
@@ -54,19 +62,21 @@ public class StressBall : MonoBehaviour
         // 撞到玩家身體
         if (other.CompareTag("Player"))
         {
-            PushHitBoxController push =
-                FindObjectOfType<PushHitBoxController>();
-
-            // 肩推狀態中：壓力球消失，不扣血
-            if (push != null && push.isAttacking)
+            // 只有壓力球真的碰到啟用中的攻擊 HitBox，才算成功打掉。
+            // 避免右邊出拳時，左邊壓力球撞到玩家卻被全域攻擊狀態擋掉。
+            if (IsTouchingActivePushHitBox())
             {
                 DestroySelf(true);
                 return;
             }
 
             // 沒有肩推：扣血 + 血條震動
-            HealthUI healthUI =
-                FindObjectOfType<HealthUI>();
+            HealthUI healthUI = HealthUI.Instance;
+
+            if (healthUI == null)
+            {
+                healthUI = FindObjectOfType<HealthUI>();
+            }
 
             if (healthUI != null)
             {
@@ -85,6 +95,22 @@ public class StressBall : MonoBehaviour
             DestroySelf(true);
             return;
         }
+    }
+
+    private bool IsTouchingActivePushHitBox()
+    {
+        PushHitBoxController push = FindObjectOfType<PushHitBoxController>();
+
+        if (push == null ||
+            !push.isAttacking ||
+            push.hitBox == null ||
+            !push.hitBox.enabled ||
+            stressBallCollider == null)
+        {
+            return false;
+        }
+
+        return stressBallCollider.IsTouching(push.hitBox);
     }
 
     private void DestroySelf(bool playBreakEffect)

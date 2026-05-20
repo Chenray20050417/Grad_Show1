@@ -18,7 +18,14 @@ public class SupplementPickup : MonoBehaviour
     {
         if (picked) return;
 
-        if (other.CompareTag("PushHitBox"))
+        if (other.GetComponentInParent<StressBall>() != null ||
+            other.GetComponentInParent<SupplementPickup>() != null)
+        {
+            return;
+        }
+
+        if (other.CompareTag("PushHitBox") ||
+            other.GetComponentInParent<PushHitBoxController>() != null)
         {
             picked = true;
 

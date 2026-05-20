@@ -452,7 +452,7 @@ MonoBehaviour:
   menuGestureController: {fileID: 0}
   yaGesturePauseController: {fileID: 144749735}
   handCursorController: {fileID: 0}
-  pauseGestureController: {fileID: 0}
+  pauseGestureController: {fileID: 2050616633}
   handUIController: {fileID: 0}
   cinematicTrailerController: {fileID: 0}
   levelIntroTutorialController: {fileID: 0}
@@ -470,7 +470,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseManager: {fileID: 1583931216}
-  cooldown: 1.5
+  holdTime: 1
+  cooldown: 2
+  gestureGraceFrames: 6
+  debugLog: 0
 --- !u!4 &144749736
 Transform:
   m_ObjectHideFlags: 0
@@ -848,8 +851,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u89E3\u9396\u88DC\u5291-\u808C\u9178\n"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 0}
-  m_sharedMaterial: {fileID: 0}
+  m_fontAsset: {fileID: 11400000, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
+  m_sharedMaterial: {fileID: 4357835360360113036, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1479,6 +1482,15 @@ MonoBehaviour:
   minX: 95
   maxX: 123
   spawnY: 200
+  spawnMode: 0
+  spawnFromRight: 1
+  horizontalSpawnX: 170
+  usePlayerCenteredHorizontalSpawn: 0
+  horizontalSpawnOffset: 16
+  horizontalMinY: 188
+  horizontalMaxY: 208
+  autoSwitchHorizontalSide: 0
+  sideSwitchInterval: 20
   targetYOffset: 2.5
   minSpawnCount: 0
   maxSpawnCount: 1
@@ -2590,6 +2602,7 @@ MonoBehaviour:
   maxHealth: 100
   startHealth: 100
   currentHealth: 100
+  isInvincible: 0
   healthPanel: {fileID: 777148921}
   shakeDuration: 0.2
   shakeStrength: 50
@@ -2670,7 +2683,6 @@ GameObject:
   m_Component:
   - component: {fileID: 834933705}
   - component: {fileID: 834933706}
-  - component: {fileID: 834933707}
   m_Layer: 5
   m_Name: HealthSlider
   m_TagString: Untagged
@@ -2750,25 +2762,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &834933707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 834933704}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bfca5e43c142e146ac185463dcafb1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healthSlider: {fileID: 834933706}
-  maxHealth: 100
-  startHealth: 100
-  currentHealth: 100
-  healthPanel: {fileID: 0}
-  shakeDuration: 0.2
-  shakeStrength: 10
 --- !u!1 &836114282
 GameObject:
   m_ObjectHideFlags: 0
@@ -2951,7 +2944,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04e8f971d0219424e8f2392d49bb564d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitBox: {fileID: 0}
+  hitBox: {fileID: 940823498}
   activeTime: 1.5
   isAttacking: 0
 --- !u!1 &945015576
@@ -3202,7 +3195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bab9a5aa63ff17940b2083edc545d5ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalTime: 90
+  totalTime: 10
   currentTime: 0
   timerText: {fileID: 1991377113}
   timerPanel: {fileID: 976575841}
@@ -5445,8 +5438,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u89E3\u9396\u88DC\u5291-\u9AD8\u86CB\u767D"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 0}
-  m_sharedMaterial: {fileID: 0}
+  m_fontAsset: {fileID: 11400000, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
+  m_sharedMaterial: {fileID: 4357835360360113036, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5692,6 +5685,7 @@ RectTransform:
   - {fileID: 976575841}
   - {fileID: 2079487784}
   - {fileID: 777148921}
+  - {fileID: 2147100001}
   m_Father: {fileID: 1446169755}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6669,7 +6663,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2079487786}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1583931216}
+        m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
+        m_MethodName: ShowPause
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2079487786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6777,7 +6783,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2147100001
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6785,7 +6791,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2147100000}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
@@ -6793,11 +6799,11 @@ RectTransform:
   - {fileID: 2147100011}
   - {fileID: 2147100021}
   - {fileID: 2052471858}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1924784547}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.00012207031, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
 --- !u!223 &2147100002
@@ -7999,7 +8005,6 @@ SceneRoots:
   - {fileID: 1972972202}
   - {fileID: 1709085966}
   - {fileID: 2147000002}
-  - {fileID: 2147100001}
   - {fileID: 5013599516812626024}
   - {fileID: 1873394553963983988}
   - {fileID: 2513496773923424838}

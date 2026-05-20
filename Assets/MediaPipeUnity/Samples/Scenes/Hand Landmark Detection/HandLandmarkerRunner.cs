@@ -8,6 +8,7 @@ using System.Collections;
 using Mediapipe.Tasks.Vision.HandLandmarker;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 {
@@ -27,6 +28,8 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 [SerializeField] private HandUseItemController handUseItemController;
 
     private Experimental.TextureFramePool _textureFramePool;
+    private bool shouldRefreshSceneControllers = true;
+    private float refreshSceneControllersUntilTime = 0f;
 
     public readonly HandLandmarkDetectionConfig config = new HandLandmarkDetectionConfig();
 
@@ -35,6 +38,33 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
       base.Stop();
       _textureFramePool?.Dispose();
       _textureFramePool = null;
+    }
+
+    private void OnEnable()
+    {
+      SceneManager.sceneLoaded += OnSceneLoaded;
+      RequestSceneControllerRefresh();
+    }
+
+    private void OnDisable()
+    {
+      SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+      RequestSceneControllerRefresh();
+    }
+
+    private void Update()
+    {
+      RefreshSceneControllersIfNeeded();
+    }
+
+    private void RequestSceneControllerRefresh()
+    {
+      shouldRefreshSceneControllers = true;
+      refreshSceneControllersUntilTime = Time.unscaledTime + 3f;
     }
 
     protected override IEnumerator Run()
@@ -92,6 +122,8 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 
       while (true)
       {
+        RefreshSceneControllersIfNeeded();
+
         if (isPaused)
         {
           yield return new WaitWhile(() => isPaused);
@@ -180,6 +212,40 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
       }
     }
 
+    private void RefreshSceneControllersIfNeeded()
+    {
+      bool hasCriticalControllers =
+        yaGesturePauseController != null &&
+        handCursorController != null &&
+        pauseGestureController != null;
+
+      if (!shouldRefreshSceneControllers &&
+          hasCriticalControllers &&
+          Time.unscaledTime > refreshSceneControllersUntilTime)
+      {
+        return;
+      }
+
+      menuGestureController = FindObjectOfType<MenuGestureController>();
+      yaGesturePauseController = FindObjectOfType<YAGesturePauseController>();
+      handCursorController = FindObjectOfType<HandCursorController>();
+      pauseGestureController = FindObjectOfType<PauseGestureController>();
+      handUIController = FindObjectOfType<HandUIController>();
+      cinematicTrailerController = FindObjectOfType<CinematicTrailerController>();
+      levelIntroTutorialController = FindObjectOfType<LevelIntroTutorialController>();
+      handUseItemController = FindObjectOfType<HandUseItemController>();
+
+      hasCriticalControllers =
+        yaGesturePauseController != null &&
+        handCursorController != null &&
+        pauseGestureController != null;
+
+      if (hasCriticalControllers || Time.unscaledTime > refreshSceneControllersUntilTime)
+      {
+        shouldRefreshSceneControllers = false;
+      }
+    }
+
     private void OnHandLandmarkDetectionOutput(
       HandLandmarkerResult result,
       Image image,
@@ -209,7 +275,12 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
         menuGestureController.CheckHand(result.handLandmarks[0]);
 
       if (yaGesturePauseController != null)
-        yaGesturePauseController.CheckHand(result.handLandmarks[0]);
+      {
+        for (int i = 0; i < result.handLandmarks.Count; i++)
+        {
+          yaGesturePauseController.CheckHand(result.handLandmarks[i]);
+        }
+      }
 
       if (handCursorController != null)
         handCursorController.CheckHand(result.handLandmarks[0]);

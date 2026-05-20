@@ -12,6 +12,7 @@ public class HealthUI : MonoBehaviour
     public float maxHealth = 100f;
     public float startHealth = 100f;
     public float currentHealth;
+    public bool isInvincible;
 
     [Header("UI震動")]
     public RectTransform healthPanel;
@@ -50,6 +51,12 @@ public class HealthUI : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (isInvincible)
+        {
+            Debug.Log("無敵中，不扣血");
+            return;
+        }
+
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
@@ -87,6 +94,11 @@ public class HealthUI : MonoBehaviour
     public bool IsDead()
     {
         return currentHealth <= 0;
+    }
+
+    public void SetInvincible(bool value)
+    {
+        isInvincible = value;
     }
 
     private void UpdateHealthUI()

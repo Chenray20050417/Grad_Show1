@@ -54,6 +54,13 @@ public class LevelPassManager : MonoBehaviour
         if (resultShown) return;
         if (gameTimer == null || healthUI == null) return;
 
+        if (healthUI.IsDead())
+        {
+            ShowFail();
+            Debug.Log("血量為 0，失敗");
+            return;
+        }
+
         if (gameTimer.currentTime <= 0)
         {
             resultShown = true;
@@ -68,11 +75,18 @@ public class LevelPassManager : MonoBehaviour
             }
             else
             {
-                if (failCanvas != null)
-                    failCanvas.SetActive(true);
-
+                ShowFail();
                 Debug.Log("時間到，血量為 0，失敗");
             }
         }
+    }
+
+    private void ShowFail()
+    {
+        resultShown = true;
+        Time.timeScale = 0f;
+
+        if (failCanvas != null)
+            failCanvas.SetActive(true);
     }
 }

@@ -258,7 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dd12bda86d84f6c82df84d050b7a956, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cinematicClip: {fileID: 32900000, guid: e4adb3dcc119d0444927144f45ce1938, type: 3}
+  cinematicClip: {fileID: 32900000, guid: f2b778f6e005a87459296e70cdee94fb, type: 3}
   nextSceneName: level1
   allowSkip: 1
   fistHoldToSkipSeconds: 2
@@ -849,6 +849,7 @@ MonoBehaviour:
   pauseGestureController: {fileID: 0}
   handUIController: {fileID: 0}
   cinematicTrailerController: {fileID: 200002}
+  levelIntroTutorialController: {fileID: 0}
   handUseItemController: {fileID: 0}
 --- !u!4 &511999203
 Transform:
@@ -925,7 +926,7 @@ MonoBehaviour:
   m_text: "\u53F3\u624B\u63E1\u62F3 2 \u79D2SKIP>>>"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
-  m_sharedMaterial: {fileID: 2358138523429634829, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
+  m_sharedMaterial: {fileID: 4357835360360113036, guid: d1fc29e7f9d629a4ea7862e2a5f5a57e, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

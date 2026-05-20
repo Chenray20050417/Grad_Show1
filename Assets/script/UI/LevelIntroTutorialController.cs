@@ -19,6 +19,7 @@ public class LevelIntroTutorialController : MonoBehaviour
     private float showTimer;
     private bool isShowing;
     private bool hasTwoFists;
+    private float previousTimeScale = 1f;
 
     private void Start()
     {
@@ -30,6 +31,8 @@ public class LevelIntroTutorialController : MonoBehaviour
     {
         if (!isShowing)
             return;
+
+        Time.timeScale = 0f;
 
         if (tutorialCanvasGroup != null)
         {
@@ -87,6 +90,7 @@ public class LevelIntroTutorialController : MonoBehaviour
 
     private void ShowTutorial()
     {
+        previousTimeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
         Time.timeScale = 0f;
         isShowing = true;
         hasTwoFists = false;
@@ -108,7 +112,7 @@ public class LevelIntroTutorialController : MonoBehaviour
     {
         isShowing = false;
         hasTwoFists = false;
-        Time.timeScale = 1f;
+        Time.timeScale = previousTimeScale;
 
         if (tutorialCanvasGroup != null)
             tutorialCanvasGroup.gameObject.SetActive(false);

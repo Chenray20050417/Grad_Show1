@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -22,10 +23,34 @@ public class InventoryManager : MonoBehaviour
     public Sprite testosteroneIcon;
     public Sprite vitaminIcon;
 
+    [Header("睪固酮無敵")]
+    public SpriteRenderer playerSprite;
+    public GameObject invinciblePanel;
+    public Text invincibleCountdownText;
+    public Image invincibleFillImage;
+    public float testosteroneDuration = 5f;
+    public Color testosteroneColor = new Color(0.75f, 0.25f, 1f, 1f);
+    public Color testosteroneBarColor = new Color(0.72f, 0.18f, 1f, 1f);
+
+    [Header("維他命慢動作")]
+    public float vitaminSlowMotionDuration = 10f;
+    public float vitaminSlowMotionScale = 0.45f;
+    public GameObject slowMotionPanel;
+    public Text slowMotionCountdownText;
+    public Image slowMotionFillImage;
+    public Color vitaminBarColor = new Color(0.1f, 0.85f, 1f, 1f);
+
     [Header("目前數量")]
     public int currentItemCount;
 
     private List<SupplementType> items = new List<SupplementType>();
+    private Coroutine testosteroneRoutine;
+    private Coroutine vitaminRoutine;
+    private Color originalPlayerColor = Color.white;
+    private bool testosteroneActive = false;
+    private bool vitaminActive = false;
+    private float originalTimeScale = 1f;
+    private float originalFixedDeltaTime = 0.02f;
 
     private void Awake()
     {
@@ -34,7 +59,60 @@ public class InventoryManager : MonoBehaviour
 
     private void Start()
     {
+        if (invinciblePanel != null)
+        {
+            invinciblePanel.SetActive(false);
+        }
+
+        if (slowMotionPanel != null)
+        {
+            slowMotionPanel.SetActive(false);
+        }
+
+        UpdateStatusPanel(invinciblePanel, invincibleFillImage, invincibleCountdownText, 0f, 1f, "", testosteroneBarColor);
+        UpdateStatusPanel(slowMotionPanel, slowMotionFillImage, slowMotionCountdownText, 0f, 1f, "", vitaminBarColor);
         UpdateUI();
+    }
+
+    private void OnDisable()
+    {
+        if (testosteroneRoutine != null)
+        {
+            StopCoroutine(testosteroneRoutine);
+            testosteroneRoutine = null;
+        }
+
+        if (vitaminRoutine != null)
+        {
+            StopCoroutine(vitaminRoutine);
+            vitaminRoutine = null;
+        }
+
+        if (HealthUI.Instance != null)
+        {
+            HealthUI.Instance.SetInvincible(false);
+        }
+
+        if (testosteroneActive && playerSprite != null)
+        {
+            playerSprite.color = originalPlayerColor;
+        }
+
+        if (invinciblePanel != null)
+        {
+            invinciblePanel.SetActive(false);
+        }
+
+        if (slowMotionPanel != null)
+        {
+            slowMotionPanel.SetActive(false);
+        }
+
+        RestoreSlowMotion();
+        UpdateStatusPanel(invinciblePanel, invincibleFillImage, invincibleCountdownText, 0f, 1f, "", testosteroneBarColor);
+        UpdateStatusPanel(slowMotionPanel, slowMotionFillImage, slowMotionCountdownText, 0f, 1f, "", vitaminBarColor);
+        testosteroneActive = false;
+        vitaminActive = false;
     }
 
     private void Update()
@@ -80,7 +158,6 @@ public class InventoryManager : MonoBehaviour
 
         ApplyEffect(type);
 
-     
         items.RemoveAt(index);
         currentItemCount = items.Count;
 
@@ -116,11 +193,22 @@ public class InventoryManager : MonoBehaviour
                 break;
 
             case SupplementType.Testosterone:
-                Debug.Log("睪固酮效果：無敵 5 秒");
+                if (testosteroneRoutine != null)
+                {
+                    StopCoroutine(testosteroneRoutine);
+                }
+
+                testosteroneRoutine = StartCoroutine(TestosteroneRoutine());
                 break;
 
             case SupplementType.Vitamin:
-                Debug.Log("維他命保留");
+                if (vitaminRoutine != null)
+                {
+                    StopCoroutine(vitaminRoutine);
+                    RestoreSlowMotion();
+                }
+
+                vitaminRoutine = StartCoroutine(VitaminSlowMotionRoutine());
                 break;
         }
     }
@@ -143,7 +231,114 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-public Sprite GetIcon(SupplementType type)
+    private IEnumerator TestosteroneRoutine()
+    {
+        if (playerSprite != null)
+        {
+            if (!testosteroneActive)
+            {
+                originalPlayerColor = playerSprite.color;
+            }
+
+            playerSprite.color = testosteroneColor;
+        }
+
+        testosteroneActive = true;
+
+        if (HealthUI.Instance != null)
+        {
+            HealthUI.Instance.SetInvincible(true);
+        }
+
+        float timer = testosteroneDuration;
+
+        while (timer > 0f)
+        {
+            UpdateStatusPanel(invinciblePanel, invincibleFillImage, invincibleCountdownText, timer, testosteroneDuration, "INVINCIBLE", testosteroneBarColor);
+            timer -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        UpdateStatusPanel(invinciblePanel, invincibleFillImage, invincibleCountdownText, 0f, testosteroneDuration, "INVINCIBLE", testosteroneBarColor);
+
+        if (HealthUI.Instance != null)
+        {
+            HealthUI.Instance.SetInvincible(false);
+        }
+
+        if (playerSprite != null)
+        {
+            playerSprite.color = originalPlayerColor;
+        }
+
+        if (invinciblePanel != null)
+        {
+            invinciblePanel.SetActive(false);
+        }
+
+        testosteroneActive = false;
+        testosteroneRoutine = null;
+        Debug.Log("睪固酮無敵結束");
+    }
+
+    private IEnumerator VitaminSlowMotionRoutine()
+    {
+        vitaminActive = true;
+        originalTimeScale = Time.timeScale;
+        originalFixedDeltaTime = Time.fixedDeltaTime;
+
+        Time.timeScale = Mathf.Clamp(vitaminSlowMotionScale, 0.05f, 1f);
+        Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale;
+
+        float timer = vitaminSlowMotionDuration;
+
+        while (timer > 0f)
+        {
+            UpdateStatusPanel(slowMotionPanel, slowMotionFillImage, slowMotionCountdownText, timer, vitaminSlowMotionDuration, "SLOW", vitaminBarColor);
+            timer -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        RestoreSlowMotion();
+        UpdateStatusPanel(slowMotionPanel, slowMotionFillImage, slowMotionCountdownText, 0f, vitaminSlowMotionDuration, "SLOW", vitaminBarColor);
+
+        vitaminActive = false;
+        vitaminRoutine = null;
+        Debug.Log("維他命慢動作結束");
+    }
+
+    private void RestoreSlowMotion()
+    {
+        if (!vitaminActive) return;
+
+        if (Time.timeScale > 0f)
+        {
+            Time.timeScale = originalTimeScale;
+        }
+
+        Time.fixedDeltaTime = originalFixedDeltaTime;
+    }
+
+    private void UpdateStatusPanel(GameObject panel, Image fillImage, Text labelText, float timeLeft, float duration, string label, Color fillColor)
+    {
+        if (panel != null)
+        {
+            panel.SetActive(timeLeft > 0f);
+        }
+
+        if (fillImage != null)
+        {
+            float safeDuration = Mathf.Max(duration, 0.01f);
+            fillImage.fillAmount = Mathf.Clamp01(timeLeft / safeDuration);
+            fillImage.color = fillColor;
+        }
+
+        if (labelText == null) return;
+
+        labelText.text = label;
+    }
+
+    public Sprite GetIcon(SupplementType type)
     {
         switch (type)
         {

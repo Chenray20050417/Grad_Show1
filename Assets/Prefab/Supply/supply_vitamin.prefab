@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.23280174, w: 0.9725242}
   m_LocalPosition: {x: 110.012, y: 196.481, z: 0}
-  m_LocalScale: {x: 0.13655233, y: 0.13655233, z: 0.13655233}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -100,10 +100,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dadb46304676a942887d31327ea1014, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveMode: 0
   moveSpeed: 3
   target: {fileID: 0}
   targetYOffset: 2
+  moveDirection: {x: -1, y: 0}
   rotateSpeed: 180
+  destroyAfterSeconds: 12
 --- !u!61 &-2896783154407472544
 BoxCollider2D:
   m_ObjectHideFlags: 0
