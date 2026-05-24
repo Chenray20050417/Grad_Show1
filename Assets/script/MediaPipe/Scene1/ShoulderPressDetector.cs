@@ -44,6 +44,11 @@ public PushHitBoxController pushHitBox;
             if (playerAnimator != null)
             {
                 playerAnimator.Play(pushAnimName, 0, 0f);
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayLevel1PlayerAnimation();
+                }
+
                 if (pushHitBox != null)
 {
     pushHitBox.ActivateHitBox();

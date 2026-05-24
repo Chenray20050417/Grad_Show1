@@ -39,6 +39,9 @@ public class SupplementPickup : MonoBehaviour
 
             if (success)
 {
+    if (AudioManager.Instance != null)
+        AudioManager.Instance.PlaySupplementPickup();
+
     Debug.Log("顯示補劑說明：" + type);
 
     if (SupplementEffectUI.Instance != null)

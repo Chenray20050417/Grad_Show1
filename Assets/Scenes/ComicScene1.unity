@@ -451,7 +451,7 @@ MonoBehaviour:
     - clip: {fileID: 8300000, guid: fb4ca9b18c8236942bd0cfc234b54682, type: 3}
       delay: 0
       shake: 1
-  nextSceneName: 
+  nextSceneName: level2
   shakeDuration: 0.35
   shakeStrength: 20
 --- !u!4 &1272588983

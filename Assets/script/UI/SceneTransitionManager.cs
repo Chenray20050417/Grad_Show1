@@ -61,6 +61,9 @@ public class SceneTransitionManager : MonoBehaviour
         if (isTransitioning)
             return;
 
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayTransition();
+
         Time.timeScale = 1f;
         StartCoroutine(PlayTransitionAndLoadScene(sceneName, sceneBuildIndex));
     }

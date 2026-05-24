@@ -39,6 +39,7 @@ public class CinematicTrailerController : MonoBehaviour
 
     private void Start()
     {
+        GameStats.Reset();
         Time.timeScale = 1f;
 
         Camera targetCamera = Camera.main;

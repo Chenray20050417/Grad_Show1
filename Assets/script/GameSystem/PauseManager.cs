@@ -23,6 +23,12 @@ public class PauseManager : MonoBehaviour
         if (pauseCanvas != null)
             pauseCanvas.SetActive(true);
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayPause();
+            AudioManager.Instance.PauseBgm();
+        }
+
         Time.timeScale = 0f;
         Debug.Log("暫停畫布顯示");
     }
@@ -33,6 +39,12 @@ public class PauseManager : MonoBehaviour
 
         if (pauseCanvas != null)
             pauseCanvas.SetActive(false);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayResume();
+            AudioManager.Instance.ResumeBgm();
+        }
 
         Time.timeScale = 1f;
         Debug.Log("繼續遊戲");

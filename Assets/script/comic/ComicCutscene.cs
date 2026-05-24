@@ -33,6 +33,9 @@ public class ComicCutscene : MonoBehaviour
     [Header("結束後前往場景")]
     public string nextSceneName = "level2";
 
+    [Header("結尾演出")]
+    public ComicEndingSequence endingSequence;
+
     [Header("震動設定")]
     public float shakeDuration = 0.45f;
     public float shakeStrength = 55f;
@@ -183,6 +186,24 @@ public class ComicCutscene : MonoBehaviour
             return;
 
         hasFinished = true;
+
+        if (endingSequence == null)
+            endingSequence = GetComponent<ComicEndingSequence>();
+
+        if (endingSequence != null || nextSceneName == "END_GAME")
+        {
+            if (endingSequence == null)
+                endingSequence = GetComponent<ComicEndingSequence>();
+
+            if (endingSequence == null)
+            {
+                Debug.LogError("ComicScene4 結束要跑 END_GAME，但 ComicManager 沒有掛 ComicEndingSequence。請手動建立 Ending Canvas 並掛上 ComicEndingSequence。");
+                return;
+            }
+
+            endingSequence.PlayEnding(comicImage);
+            return;
+        }
 
         if (!string.IsNullOrEmpty(nextSceneName))
             SceneTransitionManager.LoadScene(nextSceneName);

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Mediapipe.Tasks.Components.Containers;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class LevelIntroTutorialController : MonoBehaviour
 {
@@ -11,15 +12,17 @@ public class LevelIntroTutorialController : MonoBehaviour
     public float autoHideSeconds = 5f;
 
     [Header("跳過")]
-    public float doubleFistHoldSeconds = 1.2f;
+    [FormerlySerializedAs("doubleFistHoldSeconds")]
+    public float fistHoldToSkipSeconds = 1f;
     public SpriteFrameAnimator skipAnimator;
 
     private float holdTimer;
     private float fadeTimer;
     private float showTimer;
     private bool isShowing;
-    private bool hasTwoFists;
+    private bool hasFist;
     private float previousTimeScale = 1f;
+    private readonly object handLock = new object();
 
     private void Start()
     {
@@ -48,14 +51,21 @@ public class LevelIntroTutorialController : MonoBehaviour
             return;
         }
 
-        if (hasTwoFists)
+        bool isFist;
+
+        lock (handLock)
+        {
+            isFist = hasFist;
+        }
+
+        if (isFist)
         {
             holdTimer += Time.unscaledDeltaTime;
 
             if (skipAnimator != null)
-                skipAnimator.SetProgress(holdTimer / Mathf.Max(0.01f, doubleFistHoldSeconds));
+                skipAnimator.SetProgress(holdTimer / Mathf.Max(0.01f, fistHoldToSkipSeconds));
 
-            if (holdTimer >= doubleFistHoldSeconds)
+            if (holdTimer >= fistHoldToSkipSeconds)
                 HideTutorial();
         }
         else
@@ -72,20 +82,29 @@ public class LevelIntroTutorialController : MonoBehaviour
         if (!isShowing || hands == null)
             return;
 
-        int fistCount = 0;
+        bool foundFist = false;
 
         for (int i = 0; i < hands.Count; i++)
         {
             if (IsFist(hands[i]))
-                fistCount++;
+            {
+                foundFist = true;
+                break;
+            }
         }
 
-        hasTwoFists = fistCount >= 2;
+        lock (handLock)
+        {
+            hasFist = foundFist;
+        }
     }
 
     public void ClearHands()
     {
-        hasTwoFists = false;
+        lock (handLock)
+        {
+            hasFist = false;
+        }
     }
 
     private void ShowTutorial()
@@ -93,7 +112,7 @@ public class LevelIntroTutorialController : MonoBehaviour
         previousTimeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
         Time.timeScale = 0f;
         isShowing = true;
-        hasTwoFists = false;
+        ClearHands();
         holdTimer = 0f;
         fadeTimer = 0f;
         showTimer = 0f;
@@ -111,7 +130,7 @@ public class LevelIntroTutorialController : MonoBehaviour
     private void HideTutorial()
     {
         isShowing = false;
-        hasTwoFists = false;
+        ClearHands();
         Time.timeScale = previousTimeScale;
 
         if (tutorialCanvasGroup != null)

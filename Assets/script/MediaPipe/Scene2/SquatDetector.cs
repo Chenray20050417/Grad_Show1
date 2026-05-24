@@ -12,13 +12,14 @@ public class SquatDetector : MonoBehaviour
 
     [Header("Debug")]
     public int squatCount = 0;
-    public float hipY;
-    public float kneeY;
+    public float headY;
+    public float standingHeadY;
     public float diff;
 
     [Header("判定參數")]
-    public float squatDownDiff = 0.03f;
-    public float standUpDiff = 0.12f;
+    public float headDownDistance = 0.08f;
+    public float standUpDistance = 0.03f;
+    [Range(0f, 1f)] public float standingBaselineLerp = 0.08f;
     public float cooldown = 1.2f;
 
     [Header("穩定度")]
@@ -34,6 +35,7 @@ public class SquatDetector : MonoBehaviour
 
     private bool requestSquat = false;
     private float lastTriggerTime = -999f;
+    private bool hasStandingBaseline = false;
 
     private int validFrameCount = 0;
 
@@ -41,20 +43,25 @@ public class SquatDetector : MonoBehaviour
     {
         Debug.Log("Squat CheckPose 有進來");
 
-        if (lm == null || lm.Length < 33)
+        if (lm == null || lm.Length < 1)
         {
-            Debug.Log("沒有完整人體");
+            Debug.Log("沒有偵測到頭部");
             return;
         }
 
-        hipY = (lm[23].y + lm[24].y) / 2f;
-        kneeY = (lm[25].y + lm[26].y) / 2f;
+        headY = lm[0].y;
 
-        diff = kneeY - hipY;
+        if (!hasStandingBaseline)
+        {
+            standingHeadY = headY;
+            hasStandingBaseline = true;
+        }
+
+        diff = headY - standingHeadY;
 
         Debug.Log(
-            "hipY=" + hipY.ToString("F2") +
-            " kneeY=" + kneeY.ToString("F2") +
+            "headY=" + headY.ToString("F2") +
+            " standingHeadY=" + standingHeadY.ToString("F2") +
             " diff=" + diff.ToString("F2") +
             " state=" + state +
             " frame=" + validFrameCount
@@ -65,7 +72,18 @@ public class SquatDetector : MonoBehaviour
         // -------------------------
         if (state == SquatState.Standing)
         {
-            if (diff <= squatDownDiff)
+            if (diff <= standUpDistance)
+            {
+                standingHeadY = Mathf.Lerp(
+                    standingHeadY,
+                    headY,
+                    standingBaselineLerp
+                );
+            }
+
+            diff = headY - standingHeadY;
+
+            if (diff >= headDownDistance)
             {
                 validFrameCount++;
 
@@ -73,6 +91,7 @@ public class SquatDetector : MonoBehaviour
                 {
                     state = SquatState.Down;
                     validFrameCount = 0;
+                    requestSquat = true;
 
                     Debug.Log("⬇ 偵測到蹲下");
                 }
@@ -88,7 +107,7 @@ public class SquatDetector : MonoBehaviour
         // -------------------------
         else if (state == SquatState.Down)
         {
-            if (diff >= standUpDiff)
+            if (diff <= standUpDistance)
             {
                 validFrameCount++;
 
@@ -97,8 +116,6 @@ public class SquatDetector : MonoBehaviour
                     state = SquatState.Standing;
 
                     validFrameCount = 0;
-
-                    requestSquat = true;
 
                     Debug.Log("⬆ 起立成功");
                 }
@@ -125,6 +142,10 @@ public class SquatDetector : MonoBehaviour
             if (playerAnimator != null)
             {
                 playerAnimator.Play(squatAnimName, 0, 0f);
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayLevel2PlayerAnimation();
+                }
 
                 playerAnimator.Update(0f);
 

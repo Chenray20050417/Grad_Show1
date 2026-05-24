@@ -55,7 +55,7 @@ public class StressBall : MonoBehaviour
             other.CompareTag("PushHitBox") ||
             other.GetComponentInParent<PushHitBoxController>() != null)
         {
-            DestroySelf(true);
+            DestroySelf(true, true);
             return;
         }
 
@@ -66,7 +66,7 @@ public class StressBall : MonoBehaviour
             // 避免右邊出拳時，左邊壓力球撞到玩家卻被全域攻擊狀態擋掉。
             if (IsTouchingActivePushHitBox())
             {
-                DestroySelf(true);
+                DestroySelf(true, true);
                 return;
             }
 
@@ -113,11 +113,22 @@ public class StressBall : MonoBehaviour
         return stressBallCollider.IsTouching(push.hitBox);
     }
 
-    private void DestroySelf(bool playBreakEffect)
+    private void DestroySelf(bool playBreakEffect, bool countAsBroken = false)
     {
         if (isDestroyed) return;
 
         isDestroyed = true;
+
+        if (countAsBroken)
+            GameStats.AddBrokenStressBall();
+
+        if (playBreakEffect && AudioManager.Instance != null)
+        {
+            if (countAsBroken)
+                AudioManager.Instance.PlayStressBallBreak();
+            else
+                AudioManager.Instance.PlayStressBallMiss();
+        }
 
         if (playBreakEffect && breakEffectPrefab != null)
         {

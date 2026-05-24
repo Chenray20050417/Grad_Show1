@@ -109,6 +109,11 @@ public class InventoryManager : MonoBehaviour
         }
 
         RestoreSlowMotion();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopSlowMotionAudio(false);
+        }
+
         UpdateStatusPanel(invinciblePanel, invincibleFillImage, invincibleCountdownText, 0f, 1f, "", testosteroneBarColor);
         UpdateStatusPanel(slowMotionPanel, slowMotionFillImage, slowMotionCountdownText, 0f, 1f, "", vitaminBarColor);
         testosteroneActive = false;
@@ -157,11 +162,30 @@ public class InventoryManager : MonoBehaviour
         Debug.Log("使用補劑：" + type);
 
         ApplyEffect(type);
+        GameStats.AddUsedSupplement();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySupplementUse();
 
         items.RemoveAt(index);
         currentItemCount = items.Count;
 
         UpdateUI();
+    }
+
+    public bool UseFirstItemOfType(SupplementType type)
+    {
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (items[i] != type)
+                continue;
+
+            UseItem(i);
+            return true;
+        }
+
+        Debug.Log("物品欄沒有這個道具：" + type);
+        return false;
     }
 
     private void ApplyEffect(SupplementType type)
@@ -206,6 +230,10 @@ public class InventoryManager : MonoBehaviour
                 {
                     StopCoroutine(vitaminRoutine);
                     RestoreSlowMotion();
+                    if (AudioManager.Instance != null)
+                    {
+                        AudioManager.Instance.StopSlowMotionAudio(false);
+                    }
                 }
 
                 vitaminRoutine = StartCoroutine(VitaminSlowMotionRoutine());
@@ -290,6 +318,11 @@ public class InventoryManager : MonoBehaviour
         Time.timeScale = Mathf.Clamp(vitaminSlowMotionScale, 0.05f, 1f);
         Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale;
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StartSlowMotionAudio();
+        }
+
         float timer = vitaminSlowMotionDuration;
 
         while (timer > 0f)
@@ -300,6 +333,11 @@ public class InventoryManager : MonoBehaviour
         }
 
         RestoreSlowMotion();
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopSlowMotionAudio();
+        }
+
         UpdateStatusPanel(slowMotionPanel, slowMotionFillImage, slowMotionCountdownText, 0f, vitaminSlowMotionDuration, "SLOW", vitaminBarColor);
 
         vitaminActive = false;

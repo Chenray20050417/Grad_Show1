@@ -35,8 +35,11 @@ public class MenuGestureController : MonoBehaviour
     private bool hasRightHandPose = false;
 
     private bool lastFist = false;
+    private bool fistHeld = false;
     private bool requestClick = false;
     private float lastClickTime = -999f;
+    private Button currentHoverButton;
+    private Slider currentGestureSlider;
 
     private readonly object poseLock = new object();
 
@@ -52,6 +55,12 @@ public class MenuGestureController : MonoBehaviour
     {
         UpdateBackground();
         UpdateHandCursor();
+        UpdateButtonHover();
+
+        if (fistHeld)
+            UpdateGestureSlider();
+        else
+            currentGestureSlider = null;
 
         // 只能在 Unity 主執行緒點擊
         if (requestClick)
@@ -101,8 +110,11 @@ public void CheckHand(NormalizedLandmarks lm)
             Debug.Log("忽略非右手握拳");
 
         lastFist = false;
+        fistHeld = false;
         return;
     }
+
+    fistHeld = fist;
 
     if (fist)
     {
@@ -182,6 +194,9 @@ public void CheckHand(NormalizedLandmarks lm)
             return;
         }
 
+        if (TryStartGestureSlider())
+            return;
+
         if (Time.time - lastClickTime < clickCooldown)
         {
             Debug.Log("點擊冷卻中");
@@ -217,11 +232,158 @@ public void CheckHand(NormalizedLandmarks lm)
 
             if (btn != null)
             {
+                if (!btn.interactable || !btn.gameObject.activeInHierarchy)
+                    return;
+
                 Debug.Log("握拳點擊：" + btn.name);
+
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayGestureClick();
+
                 btn.onClick.Invoke();
                 break;
             }
         }
+    }
+
+    bool TryStartGestureSlider()
+    {
+        Slider slider = GetSliderUnderCursor();
+        if (slider == null)
+            return false;
+
+        currentGestureSlider = slider;
+        SetSliderValueFromCursor(currentGestureSlider);
+        return true;
+    }
+
+    void UpdateGestureSlider()
+    {
+        if (currentGestureSlider == null)
+            currentGestureSlider = GetSliderUnderCursor();
+
+        if (currentGestureSlider == null)
+            return;
+
+        SetSliderValueFromCursor(currentGestureSlider);
+    }
+
+    Slider GetSliderUnderCursor()
+    {
+        if (fingerCursor == null || EventSystem.current == null)
+            return null;
+
+        PointerEventData pointer =
+            new PointerEventData(EventSystem.current);
+
+        Camera uiCamera = null;
+
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            uiCamera = canvas.worldCamera;
+
+        pointer.position =
+            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
+
+        var results =
+            new System.Collections.Generic.List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var r in results)
+        {
+            Slider slider = r.gameObject.GetComponent<Slider>();
+
+            if (slider == null)
+                slider = r.gameObject.GetComponentInParent<Slider>();
+
+            if (slider != null && slider.interactable && slider.gameObject.activeInHierarchy)
+                return slider;
+        }
+
+        return null;
+    }
+
+    void SetSliderValueFromCursor(Slider slider)
+    {
+        if (slider == null || fingerCursor == null)
+            return;
+
+        RectTransform sliderRect = slider.GetComponent<RectTransform>();
+        if (sliderRect == null)
+            return;
+
+        Camera uiCamera = null;
+
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            uiCamera = canvas.worldCamera;
+
+        Vector2 screenPos =
+            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            sliderRect,
+            screenPos,
+            uiCamera,
+            out Vector2 localPoint))
+        {
+            return;
+        }
+
+        UnityEngine.Rect rect = sliderRect.rect;
+        float normalized = Mathf.InverseLerp(rect.xMin, rect.xMax, localPoint.x);
+
+        if (slider.direction == Slider.Direction.RightToLeft)
+            normalized = 1f - normalized;
+
+        slider.normalizedValue = Mathf.Clamp01(normalized);
+    }
+
+    void UpdateButtonHover()
+    {
+        Button hoverButton = GetButtonUnderCursor();
+
+        if (hoverButton == currentHoverButton)
+            return;
+
+        currentHoverButton = hoverButton;
+
+        if (currentHoverButton != null && AudioManager.Instance != null)
+            AudioManager.Instance.PlayButtonHover();
+    }
+
+    Button GetButtonUnderCursor()
+    {
+        if (fingerCursor == null || EventSystem.current == null)
+            return null;
+
+        PointerEventData pointer =
+            new PointerEventData(EventSystem.current);
+
+        Camera uiCamera = null;
+
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            uiCamera = canvas.worldCamera;
+
+        pointer.position =
+            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
+
+        var results =
+            new System.Collections.Generic.List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(pointer, results);
+
+        foreach (var r in results)
+        {
+            Button btn = r.gameObject.GetComponent<Button>();
+
+            if (btn == null)
+                btn = r.gameObject.GetComponentInParent<Button>();
+
+            if (btn != null && btn.interactable)
+                return btn;
+        }
+
+        return null;
     }
 
     void UpdateBackground()

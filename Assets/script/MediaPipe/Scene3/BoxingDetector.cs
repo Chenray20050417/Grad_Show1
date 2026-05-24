@@ -198,6 +198,11 @@ public class BoxingDetector : MonoBehaviour
         }
 
         playerAnimator.Play(pushAnimName, 0, 0f);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayLevel3PlayerAnimation();
+        }
     }
 
     void UpdateHandState(

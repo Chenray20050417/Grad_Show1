@@ -27,6 +27,7 @@ public class GameTimer : MonoBehaviour
 
     private Vector3 originalPos;
     private int lastShakeSecond = -1;
+    private bool playedTenSecondWarning = false;
     public static GameTimer Instance;
     private void Awake()
 {
@@ -99,6 +100,14 @@ public void AddTime(float amount)
             float shakePower = baseShakeStrength + (progress * 20f);
 
             StartCoroutine(Shake(shakePower));
+        }
+
+        if (!playedTenSecondWarning && currentTime <= 10f && currentTime > 0f)
+        {
+            playedTenSecondWarning = true;
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayCountdownWarning();
         }
     }
 

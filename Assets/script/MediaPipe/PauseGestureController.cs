@@ -46,6 +46,10 @@ public class PauseGestureController : MonoBehaviour
             if (currentButton != null)
             {
                 Debug.Log("握拳按下：" + currentButton.name);
+
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.PlayGestureClick();
+
                 currentButton.onClick.Invoke();
             }
         }
@@ -66,6 +70,9 @@ public class PauseGestureController : MonoBehaviour
 
         if (currentButton != null)
         {
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayButtonHover();
+
             currentImage = currentButton.GetComponent<Image>();
 
             if (currentImage != null)

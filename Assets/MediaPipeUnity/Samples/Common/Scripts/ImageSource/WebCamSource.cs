@@ -132,8 +132,14 @@ namespace Mediapipe.Unity
 
       if (availableSources != null && availableSources.Length > 0)
       {
-        webCamDevice = availableSources[1];//修改攝影機裝置
-        
+        for (int i = 0; i < availableSources.Length; i++)
+        {
+          Debug.Log($"{_TAG}: Camera [{i}] {availableSources[i].name}");
+        }
+
+        var sourceIndex = 1;//////11是本機是  0是外接
+        webCamDevice = availableSources[sourceIndex];
+        Debug.Log($"{_TAG}: Selected camera [{sourceIndex}] {webCamDevice.Value.name}");
       }
     }
 
