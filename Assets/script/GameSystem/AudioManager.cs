@@ -32,6 +32,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip level3Bgm;
     public AudioClip comicBgm;
     public AudioClip cinematicBgm;
+    public AudioClip endingVideoBgm;
 
     [Header("SFX")]
     public AudioClip buttonHoverSfx;
@@ -374,6 +375,7 @@ public class AudioManager : MonoBehaviour
         CopyIfMissing(ref level3Bgm, source.level3Bgm);
         CopyIfMissing(ref comicBgm, source.comicBgm);
         CopyIfMissing(ref cinematicBgm, source.cinematicBgm);
+        CopyIfMissing(ref endingVideoBgm, source.endingVideoBgm);
 
         CopyIfMissing(ref buttonHoverSfx, source.buttonHoverSfx);
         CopyIfMissing(ref buttonClickSfx, source.buttonClickSfx);
@@ -418,6 +420,12 @@ public class AudioManager : MonoBehaviour
         if (sceneName == "CinematicTrailer")
         {
             PlayBgm(cinematicBgm);
+            return;
+        }
+
+        if (sceneName == "EndingVideoScene")
+        {
+            PlayBgm(endingVideoBgm);
             return;
         }
 
@@ -488,6 +496,7 @@ public class AudioManager : MonoBehaviour
         level1Bgm = LoadEditorClipIfMissing(level1Bgm, "Assets/Audio/Level1BGM.mp3");
         level2Bgm = LoadEditorClipIfMissing(level2Bgm, "Assets/Audio/Level2BGM.mp3");
         level3Bgm = LoadEditorClipIfMissing(level3Bgm, "Assets/Audio/Level3BGM.mp3");
+        endingVideoBgm = LoadEditorClipIfMissing(endingVideoBgm, "Assets/Audio/EndingVideo.mp3");
 
         buttonHoverSfx = LoadEditorClipIfMissing(buttonHoverSfx, "Assets/Audio/hover.mp3");
         buttonClickSfx = LoadEditorClipIfMissing(buttonClickSfx, "Assets/Audio/click.mp3");

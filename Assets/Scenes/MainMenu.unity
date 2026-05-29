@@ -601,6 +601,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7daaa3f494c81f64ea11991355bf3043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  forceFullscreen: 1
+  targetFrameRate: 60
 --- !u!4 &487237347
 Transform:
   m_ObjectHideFlags: 0
@@ -1058,6 +1060,11 @@ MonoBehaviour:
   clickCooldown: 1
   rightHandOnly: 0
   rightHandMaxDistance: 0.25
+  hoverScale: 1.06
+  hoverMaxTiltY: 10
+  hoverMaxTiltX: 3
+  hoverEffectSpeed: 12
+  debugLog: 0
 --- !u!4 &894922156
 Transform:
   m_ObjectHideFlags: 0
@@ -1647,7 +1654,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 8
-  m_Spacing: 35
+  m_Spacing: 60.1
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -2053,7 +2060,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2030908793}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &2030908795
 Camera:
   m_ObjectHideFlags: 0
@@ -2338,7 +2345,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3302000002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3115,7 +3122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   masterVolume: 1
-  bgmVolume: 0.486
+  bgmVolume: 0.32
   sfxVolume: 1
   muted: 0
   mainMenuBgm: {fileID: 8300000, guid: d9d0188d6b6276f40bd1ea35fef17d32, type: 3}
@@ -3124,9 +3131,10 @@ MonoBehaviour:
   level3Bgm: {fileID: 8300000, guid: 8f9f65abbf25ad845b12519a596d0084, type: 3}
   comicBgm: {fileID: 0}
   cinematicBgm: {fileID: 0}
+  endingVideoBgm: {fileID: 8300000, guid: 80e92702f4f1b9649add93012b6f0ccb, type: 3}
   buttonHoverSfx: {fileID: 8300000, guid: 84185a168d1d7d94c950f6590a82eb19, type: 3}
-  buttonClickSfx: {fileID: 0}
-  gestureClickSfx: {fileID: 8300000, guid: bfc50436cc713fd44970028bca41a001, type: 3}
+  buttonClickSfx: {fileID: 8300000, guid: bfc50436cc713fd44970028bca41a001, type: 3}
+  gestureClickSfx: {fileID: 8300000, guid: cb85705dd0a1271418b737a578327365, type: 3}
   pauseSfx: {fileID: 0}
   resumeSfx: {fileID: 0}
   stressBallBreakSfx: {fileID: 8300000, guid: 440af4a05a467644ba685058c90cdc14, type: 3}

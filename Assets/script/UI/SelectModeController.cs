@@ -69,6 +69,9 @@ public class SelectModeController : MonoBehaviour
 
         button.onClick.RemoveListener(action);
         button.onClick.AddListener(action);
+
+        if (obj.GetComponent<SelectModeHoverShine>() == null)
+            obj.AddComponent<SelectModeHoverShine>();
     }
 
     public void StartStory()

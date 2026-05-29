@@ -8,6 +8,7 @@ public class YAGesturePauseController : MonoBehaviour
     public float holdTime = 1f;
     public float cooldown = 2f;
     public int gestureGraceFrames = 6;
+    public string pauseHandLabel = "Left";
     public bool debugLog;
 
     private float lastTriggerTime = -999f;
@@ -35,7 +36,15 @@ public class YAGesturePauseController : MonoBehaviour
 
     public void CheckHand(NormalizedLandmarks lm)
     {
+        CheckHand(lm, pauseHandLabel);
+    }
+
+    public void CheckHand(NormalizedLandmarks lm, string handLabel)
+    {
         if (lm.landmarks == null || lm.landmarks.Count < 21)
+            return;
+
+        if (!string.IsNullOrEmpty(pauseHandLabel) && handLabel != pauseHandLabel)
             return;
 
         bool indexUp = lm.landmarks[8].y < lm.landmarks[6].y;

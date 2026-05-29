@@ -272,15 +272,7 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
       }
 
       if (menuGestureController != null)
-        menuGestureController.CheckHand(result.handLandmarks[0]);
-
-      if (yaGesturePauseController != null)
-      {
-        for (int i = 0; i < result.handLandmarks.Count; i++)
-        {
-          yaGesturePauseController.CheckHand(result.handLandmarks[i]);
-        }
-      }
+        menuGestureController.CheckHands(result.handLandmarks);
 
       if (handCursorController != null)
         handCursorController.CheckHand(result.handLandmarks[0]);
@@ -313,19 +305,17 @@ namespace Mediapipe.Unity.Sample.HandLandmarkDetection
 
         string handLabel = result.handedness[i].categories[0].categoryName;
 
-        Debug.Log("目前手：" + handLabel);
-
         if (cinematicTrailerController != null && cinematicTrailerController.IsSkipHandLabel(handLabel))
         {
           cinematicTrailerController.CheckHand(result.handLandmarks[i], handLabel);
           checkedCinematicSkipHand = true;
         }
 
-        // 實際右手
-        if (handLabel == "Left" && handUseItemController != null)
-        {
-          handUseItemController.CheckHand(result.handLandmarks[i]);
-        }
+        if (yaGesturePauseController != null)
+          yaGesturePauseController.CheckHand(result.handLandmarks[i], handLabel);
+
+        if (handUseItemController != null)
+          handUseItemController.CheckHand(result.handLandmarks[i], handLabel);
       }
 
       if (cinematicTrailerController != null && !checkedCinematicSkipHand)

@@ -11,6 +11,7 @@ public class SquatDetector : MonoBehaviour
     public string squatAnimName = "squat2";
 
     [Header("Debug")]
+    public bool debugLog = false;
     public int squatCount = 0;
     public float headY;
     public float standingHeadY;
@@ -41,11 +42,13 @@ public class SquatDetector : MonoBehaviour
 
     public void CheckPose(NormalizedLandmark[] lm)
     {
-        Debug.Log("Squat CheckPose 有進來");
+        if (debugLog)
+            Debug.Log("Squat CheckPose 有進來");
 
         if (lm == null || lm.Length < 1)
         {
-            Debug.Log("沒有偵測到頭部");
+            if (debugLog)
+                Debug.Log("沒有偵測到頭部");
             return;
         }
 
@@ -59,13 +62,16 @@ public class SquatDetector : MonoBehaviour
 
         diff = headY - standingHeadY;
 
-        Debug.Log(
-            "headY=" + headY.ToString("F2") +
-            " standingHeadY=" + standingHeadY.ToString("F2") +
-            " diff=" + diff.ToString("F2") +
-            " state=" + state +
-            " frame=" + validFrameCount
-        );
+        if (debugLog)
+        {
+            Debug.Log(
+                "headY=" + headY.ToString("F2") +
+                " standingHeadY=" + standingHeadY.ToString("F2") +
+                " diff=" + diff.ToString("F2") +
+                " state=" + state +
+                " frame=" + validFrameCount
+            );
+        }
 
         // -------------------------
         // 蹲下
@@ -93,7 +99,8 @@ public class SquatDetector : MonoBehaviour
                     validFrameCount = 0;
                     requestSquat = true;
 
-                    Debug.Log("⬇ 偵測到蹲下");
+                    if (debugLog)
+                        Debug.Log("偵測到蹲下");
                 }
             }
             else
@@ -117,7 +124,8 @@ public class SquatDetector : MonoBehaviour
 
                     validFrameCount = 0;
 
-                    Debug.Log("⬆ 起立成功");
+                    if (debugLog)
+                        Debug.Log("起立成功");
                 }
             }
             else
@@ -137,7 +145,8 @@ public class SquatDetector : MonoBehaviour
 
             squatCount++;
 
-            Debug.Log("✅ 完成深蹲：" + squatCount);
+            if (debugLog)
+                Debug.Log("完成深蹲：" + squatCount);
 
             if (playerAnimator != null)
             {

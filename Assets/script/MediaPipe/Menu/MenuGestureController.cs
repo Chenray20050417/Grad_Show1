@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 using Mediapipe.Tasks.Components.Containers;
 
 public class MenuGestureController : MonoBehaviour
@@ -24,6 +25,15 @@ public class MenuGestureController : MonoBehaviour
     public bool rightHandOnly = true;
     public float rightHandMaxDistance = 0.25f;
 
+    [Header("Hover 透視效果")]
+    public float hoverScale = 1.06f;
+    public float hoverMaxTiltY = 10f;
+    public float hoverMaxTiltX = 3f;
+    public float hoverEffectSpeed = 12f;
+
+    [Header("Debug")]
+    public bool debugLog = false;
+
     private Vector3 originalPos;
 
     private float targetX;
@@ -39,7 +49,14 @@ public class MenuGestureController : MonoBehaviour
     private bool requestClick = false;
     private float lastClickTime = -999f;
     private Button currentHoverButton;
+    private RectTransform currentHoverRect;
+    private SelectModeHoverShine currentHoverShine;
+    private Vector3 hoverBaseScale = Vector3.one;
+    private Quaternion hoverBaseRotation = Quaternion.identity;
     private Slider currentGestureSlider;
+    private EventSystem pointerEventSystem;
+    private PointerEventData pointerData;
+    private readonly List<RaycastResult> raycastResults = new List<RaycastResult>(16);
 
     private readonly object poseLock = new object();
 
@@ -48,7 +65,8 @@ public class MenuGestureController : MonoBehaviour
         if (menuBackground != null)
             originalPos = menuBackground.localPosition;
 
-        Debug.Log("MenuGestureController 啟動完成");
+        if (debugLog)
+            Debug.Log("MenuGestureController 啟動完成");
     }
 
     void Update()
@@ -56,6 +74,7 @@ public class MenuGestureController : MonoBehaviour
         UpdateBackground();
         UpdateHandCursor();
         UpdateButtonHover();
+        UpdateHoverPerspective();
 
         if (fistHeld)
             UpdateGestureSlider();
@@ -106,30 +125,67 @@ public void CheckHand(NormalizedLandmarks lm)
 
     if (rightHandOnly && !IsNearRightHand(lm))
     {
-        if (fist)
+        if (fist && debugLog)
             Debug.Log("忽略非右手握拳");
 
-        lastFist = false;
-        fistHeld = false;
+        SetFistState(false);
         return;
     }
 
-    fistHeld = fist;
-
-    if (fist)
-    {
-        Debug.Log("👊 握拳");
-
-        if (!lastFist)
-            requestClick = true;
-    }
-    else
-    {
-        Debug.Log("🖐 張開");
-    }
-
-    lastFist = fist;
+    SetFistState(fist);
 }
+
+public void CheckHands(IReadOnlyList<NormalizedLandmarks> hands)
+{
+    if (hands == null || hands.Count == 0)
+    {
+        SetFistState(false);
+        return;
+    }
+
+    for (int i = 0; i < hands.Count; i++)
+    {
+        NormalizedLandmarks lm = hands[i];
+        if (lm.landmarks == null || lm.landmarks.Count < 21)
+            continue;
+
+        bool fist = IsFist(lm);
+        if (rightHandOnly && !IsNearRightHand(lm))
+        {
+            if (fist && debugLog)
+                Debug.Log("忽略非右手握拳");
+
+            continue;
+        }
+
+        if (fist)
+        {
+            SetFistState(true);
+            return;
+        }
+    }
+
+    SetFistState(false);
+}
+
+    void SetFistState(bool fist)
+    {
+        fistHeld = fist;
+
+        if (fist)
+        {
+            if (debugLog && !lastFist)
+                Debug.Log("握拳");
+
+            requestClick = true;
+        }
+        else if (debugLog && lastFist)
+        {
+            Debug.Log("張開");
+        }
+
+        lastFist = fist;
+    }
 
     bool IsNearRightHand(NormalizedLandmarks lm)
     {
@@ -197,31 +253,10 @@ public void CheckHand(NormalizedLandmarks lm)
         if (TryStartGestureSlider())
             return;
 
-        if (Time.time - lastClickTime < clickCooldown)
-        {
-            Debug.Log("點擊冷卻中");
-            return;
-        }
+        List<RaycastResult> results = RaycastCursor();
 
-        lastClickTime = Time.time;
-
-        PointerEventData pointer =
-            new PointerEventData(EventSystem.current);
-
-        Camera uiCamera = null;
-
-        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
-            uiCamera = canvas.worldCamera;
-
-        pointer.position =
-            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
-
-        var results =
-            new System.Collections.Generic.List<RaycastResult>();
-
-        EventSystem.current.RaycastAll(pointer, results);
-
-        Debug.Log("Raycast 打到物件數量：" + results.Count);
+        if (debugLog)
+            Debug.Log("Raycast 打到物件數量：" + results.Count);
 
         foreach (var r in results)
         {
@@ -233,9 +268,19 @@ public void CheckHand(NormalizedLandmarks lm)
             if (btn != null)
             {
                 if (!btn.interactable || !btn.gameObject.activeInHierarchy)
-                    return;
+                    continue;
 
-                Debug.Log("握拳點擊：" + btn.name);
+                if (Time.time - lastClickTime < clickCooldown)
+                {
+                    if (debugLog)
+                        Debug.Log("點擊冷卻中");
+                    return;
+                }
+
+                lastClickTime = Time.time;
+
+                if (debugLog)
+                    Debug.Log("握拳點擊：" + btn.name);
 
                 if (AudioManager.Instance != null)
                     AudioManager.Instance.PlayGestureClick();
@@ -273,21 +318,7 @@ public void CheckHand(NormalizedLandmarks lm)
         if (fingerCursor == null || EventSystem.current == null)
             return null;
 
-        PointerEventData pointer =
-            new PointerEventData(EventSystem.current);
-
-        Camera uiCamera = null;
-
-        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
-            uiCamera = canvas.worldCamera;
-
-        pointer.position =
-            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
-
-        var results =
-            new System.Collections.Generic.List<RaycastResult>();
-
-        EventSystem.current.RaycastAll(pointer, results);
+        List<RaycastResult> results = RaycastCursor();
 
         foreach (var r in results)
         {
@@ -345,10 +376,78 @@ public void CheckHand(NormalizedLandmarks lm)
         if (hoverButton == currentHoverButton)
             return;
 
+        ResetHoverTarget();
+
         currentHoverButton = hoverButton;
+        currentHoverRect = currentHoverButton != null
+            ? currentHoverButton.GetComponent<RectTransform>()
+            : null;
+        currentHoverShine = currentHoverButton != null
+            ? currentHoverButton.GetComponent<SelectModeHoverShine>()
+            : null;
+
+        if (currentHoverRect != null)
+        {
+            hoverBaseScale = currentHoverRect.localScale;
+            hoverBaseRotation = currentHoverRect.localRotation;
+        }
+
+        if (currentHoverShine != null)
+            currentHoverShine.SetHovered(true);
 
         if (currentHoverButton != null && AudioManager.Instance != null)
             AudioManager.Instance.PlayButtonHover();
+    }
+
+    void UpdateHoverPerspective()
+    {
+        if (currentHoverRect == null || fingerCursor == null)
+            return;
+
+        Camera uiCamera = null;
+
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            uiCamera = canvas.worldCamera;
+
+        Vector2 screenPos =
+            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
+
+        Vector2 localPoint;
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            currentHoverRect,
+            screenPos,
+            uiCamera,
+            out localPoint))
+        {
+            return;
+        }
+
+        UnityEngine.Rect rect = currentHoverRect.rect;
+        float normalizedX = Mathf.Clamp(localPoint.x / Mathf.Max(1f, rect.width * 0.5f), -1f, 1f);
+        float normalizedY = Mathf.Clamp(localPoint.y / Mathf.Max(1f, rect.height * 0.5f), -1f, 1f);
+
+        Quaternion targetRotation =
+            hoverBaseRotation * Quaternion.Euler(-normalizedY * hoverMaxTiltX, -normalizedX * hoverMaxTiltY, 0f);
+        Vector3 targetScale = hoverBaseScale * hoverScale;
+
+        float lerp = Time.unscaledDeltaTime * hoverEffectSpeed;
+        currentHoverRect.localRotation = Quaternion.Slerp(currentHoverRect.localRotation, targetRotation, lerp);
+        currentHoverRect.localScale = Vector3.Lerp(currentHoverRect.localScale, targetScale, lerp);
+    }
+
+    void ResetHoverTarget()
+    {
+        if (currentHoverRect == null)
+            return;
+
+        currentHoverRect.localRotation = hoverBaseRotation;
+        currentHoverRect.localScale = hoverBaseScale;
+        currentHoverRect = null;
+
+        if (currentHoverShine != null)
+            currentHoverShine.SetHovered(false);
+
+        currentHoverShine = null;
     }
 
     Button GetButtonUnderCursor()
@@ -356,21 +455,7 @@ public void CheckHand(NormalizedLandmarks lm)
         if (fingerCursor == null || EventSystem.current == null)
             return null;
 
-        PointerEventData pointer =
-            new PointerEventData(EventSystem.current);
-
-        Camera uiCamera = null;
-
-        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
-            uiCamera = canvas.worldCamera;
-
-        pointer.position =
-            RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
-
-        var results =
-            new System.Collections.Generic.List<RaycastResult>();
-
-        EventSystem.current.RaycastAll(pointer, results);
+        List<RaycastResult> results = RaycastCursor();
 
         foreach (var r in results)
         {
@@ -384,6 +469,30 @@ public void CheckHand(NormalizedLandmarks lm)
         }
 
         return null;
+    }
+
+    private List<RaycastResult> RaycastCursor()
+    {
+        raycastResults.Clear();
+
+        if (fingerCursor == null || EventSystem.current == null)
+            return raycastResults;
+
+        if (pointerData == null || pointerEventSystem != EventSystem.current)
+        {
+            pointerEventSystem = EventSystem.current;
+            pointerData = new PointerEventData(EventSystem.current);
+        }
+
+        Camera uiCamera = null;
+
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            uiCamera = canvas.worldCamera;
+
+        pointerData.Reset();
+        pointerData.position = RectTransformUtility.WorldToScreenPoint(uiCamera, fingerCursor.position);
+        EventSystem.current.RaycastAll(pointerData, raycastResults);
+        return raycastResults;
     }
 
     void UpdateBackground()

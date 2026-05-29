@@ -68,6 +68,9 @@ public class ComicCutscene : MonoBehaviour
 
     void Start()
     {
+        if (ComicEndingSequence.HasPendingResultResume)
+            return;
+
         if (frames == null || frames.Length == 0 || comicImage == null)
             return;
 

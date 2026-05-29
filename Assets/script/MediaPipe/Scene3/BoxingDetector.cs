@@ -36,6 +36,7 @@ public class BoxingDetector : MonoBehaviour
     public int rightReturnFrames;
     public int leftPunchFrames;
     public int rightPunchFrames;
+    public bool debugLog = false;
 
     [Header("Settings")]
     public bool useSpeedCheck = false;
@@ -165,19 +166,22 @@ public class BoxingDetector : MonoBehaviour
             effectivePunchDistance
         );
 
-        Debug.Log(
-            "左速=" + leftSpeed.ToString("F2") +
-            " 右速=" + rightSpeed.ToString("F2") +
-            " 左收拳距離=" + leftReturnDistance.ToString("F2") +
-            " 右收拳距離=" + rightReturnDistance.ToString("F2") +
-            " 出拳門檻=" + effectivePunchDistance.ToString("F2") +
-            " leftReady=" + leftReady +
-            " rightReady=" + rightReady +
-            " 左收拳幀=" + leftReturnFrames +
-            " 右收拳幀=" + rightReturnFrames +
-            " 左出拳幀=" + leftPunchFrames +
-            " 右出拳幀=" + rightPunchFrames
-        );
+        if (debugLog)
+        {
+            Debug.Log(
+                "左速=" + leftSpeed.ToString("F2") +
+                " 右速=" + rightSpeed.ToString("F2") +
+                " 左收拳距離=" + leftReturnDistance.ToString("F2") +
+                " 右收拳距離=" + rightReturnDistance.ToString("F2") +
+                " 出拳門檻=" + effectivePunchDistance.ToString("F2") +
+                " leftReady=" + leftReady +
+                " rightReady=" + rightReady +
+                " 左收拳幀=" + leftReturnFrames +
+                " 右收拳幀=" + rightReturnFrames +
+                " 左出拳幀=" + leftPunchFrames +
+                " 右出拳幀=" + rightPunchFrames
+            );
+        }
     }
 
     void TriggerPunch(string hand)
@@ -190,7 +194,8 @@ public class BoxingDetector : MonoBehaviour
         leftPunchFrames = 0;
         rightPunchFrames = 0;
 
-        Debug.Log("🔥 " + hand + " 瞬間加速出拳成功");
+        if (debugLog)
+            Debug.Log(hand + " 瞬間加速出拳成功");
 
         if (pushHitBox != null)
         {

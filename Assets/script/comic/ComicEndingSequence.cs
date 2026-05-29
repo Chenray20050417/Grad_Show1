@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ComicEndingSequence : MonoBehaviour
@@ -25,6 +26,11 @@ public class ComicEndingSequence : MonoBehaviour
     public int hurtCount;
     public float resultHoldSeconds = 2.2f;
 
+    [Header("結算前影片場景")]
+    public bool playVideoSceneBeforeResult = true;
+    public string resultVideoSceneName = "EndingVideoScene";
+    public string resumeResultSceneName = "ComicScene4";
+
     [Header("排行榜")]
     public bool saveToLocalLeaderboard = true;
     public int maxPlayerNameLength = 12;
@@ -38,10 +44,33 @@ public class ComicEndingSequence : MonoBehaviour
     public float systemHoldSeconds = 1.2f;
     public float thanksHoldSeconds = 1.4f;
     public string mainMenuSceneName = "MainMenu";
+    public string postCreditsSceneName = "Post-credits scene";
 
     private bool isPlaying;
     private bool nameSubmitted;
     private string playerNameInput = "";
+    private static bool pendingResultResume;
+    private static int pendingBrokenCount;
+    private static int pendingSupplementCount;
+    private static int pendingDamageCount;
+    private static string pendingResumeSceneName;
+
+    public static bool HasPendingResultResume
+    {
+        get { return pendingResultResume; }
+    }
+
+    private void Start()
+    {
+        if (!pendingResultResume)
+            return;
+
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        if (!string.IsNullOrEmpty(pendingResumeSceneName) && activeSceneName != pendingResumeSceneName)
+            return;
+
+        StartCoroutine(ResumeResultRoutine());
+    }
 
     public void PlayEnding(RectTransform targetComicImage = null)
     {
@@ -83,6 +112,64 @@ public class ComicEndingSequence : MonoBehaviour
         int supplementCount = useGameStats ? GameStats.UsedSupplements : usedSupplements;
         int damageCount = useGameStats ? GameStats.HurtCount : hurtCount;
 
+        if (playVideoSceneBeforeResult && !string.IsNullOrEmpty(resultVideoSceneName))
+        {
+            pendingResultResume = true;
+            pendingBrokenCount = brokenCount;
+            pendingSupplementCount = supplementCount;
+            pendingDamageCount = damageCount;
+            pendingResumeSceneName = string.IsNullOrEmpty(resumeResultSceneName)
+                ? SceneManager.GetActiveScene().name
+                : resumeResultSceneName;
+
+            Time.timeScale = 1f;
+            SceneTransitionManager.LoadScene(resultVideoSceneName);
+            yield break;
+        }
+
+        yield return ShowResultRoutine(brokenCount, supplementCount, damageCount);
+    }
+
+    private IEnumerator ResumeResultRoutine()
+    {
+        isPlaying = true;
+
+        int brokenCount = pendingBrokenCount;
+        int supplementCount = pendingSupplementCount;
+        int damageCount = pendingDamageCount;
+
+        yield return null;
+
+        pendingResultResume = false;
+        pendingResumeSceneName = string.Empty;
+
+        if (!HasRequiredManualCanvas())
+            yield break;
+
+        if (endingCanvasGroup != null)
+        {
+            endingCanvasGroup.gameObject.SetActive(true);
+            endingCanvasGroup.alpha = 1f;
+        }
+
+        SetText(resultText, resultTextLegacy, string.Empty);
+        SetText(systemText, systemTextLegacy, string.Empty);
+        SetText(thanksText, thanksTextLegacy, string.Empty);
+        SetBlackAlpha(1f);
+
+        yield return ShowResultRoutine(brokenCount, supplementCount, damageCount);
+    }
+
+    private IEnumerator ShowResultRoutine(int brokenCount, int supplementCount, int damageCount)
+    {
+        if (endingCanvasGroup != null)
+        {
+            endingCanvasGroup.gameObject.SetActive(true);
+            endingCanvasGroup.alpha = 1f;
+        }
+
+        SetBlackAlpha(1f);
+
         SetText(resultText, resultTextLegacy,
             "挑戰完成\n\n" +
             "擊破壓力球：" + brokenCount + "\n" +
@@ -106,7 +193,7 @@ public class ComicEndingSequence : MonoBehaviour
         yield return TypeText(thanksText, thanksTextLegacy, "感謝遊玩");
 
         yield return Wait(thanksHoldSeconds);
-        ReturnToMainMenu();
+        LoadPostCreditsOrMainMenu();
     }
 
     private IEnumerator AskPlayerNameAndSave(int brokenCount, int supplementCount, int damageCount)
@@ -345,9 +432,13 @@ public class ComicEndingSequence : MonoBehaviour
         return value.Trim();
     }
 
-    private void ReturnToMainMenu()
+    private void LoadPostCreditsOrMainMenu()
     {
         Time.timeScale = 1f;
-        SceneTransitionManager.LoadScene(mainMenuSceneName);
+
+        if (!string.IsNullOrEmpty(postCreditsSceneName))
+            SceneTransitionManager.LoadScene(postCreditsSceneName);
+        else
+            SceneTransitionManager.LoadScene(mainMenuSceneName);
     }
 }

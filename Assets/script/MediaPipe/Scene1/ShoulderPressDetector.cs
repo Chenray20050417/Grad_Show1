@@ -22,6 +22,9 @@ public PushHitBoxController pushHitBox;
     public int requiredFrames = 2;
     public float minShoulderWidth = 0.12f;
 
+    [Header("Debug")]
+    public bool debugLog = false;
+
     private bool ready = false;
     private bool requestPush = false;
     private float lastTriggerTime = -999f;
@@ -39,7 +42,8 @@ public PushHitBoxController pushHitBox;
             validFrameCount = 0;
             lastTriggerTime = Time.time;
 
-            Debug.Log("主執行緒播放 push");
+            if (debugLog)
+                Debug.Log("主執行緒播放 push");
 
             if (playerAnimator != null)
             {
@@ -64,17 +68,20 @@ public PushHitBoxController pushHitBox;
 
     public void CheckPose(PoseLandmarkerResult result)
     {
-        Debug.Log("CheckPose 有進來");
+        if (debugLog)
+            Debug.Log("CheckPose 有進來");
 
         if (result.poseLandmarks == null)
         {
-            Debug.Log("沒有 poseLandmarks");
+            if (debugLog)
+                Debug.Log("沒有 poseLandmarks");
             return;
         }
 
         if (result.poseLandmarks.Count == 0)
         {
-            Debug.Log("沒有偵測到人");
+            if (debugLog)
+                Debug.Log("沒有偵測到人");
             return;
         }
 
@@ -91,7 +98,8 @@ public PushHitBoxController pushHitBox;
 
         if (shoulderWidth < minShoulderWidth)
         {
-            Debug.Log("人太遠 / 肩膀太小，不判斷 shoulderWidth=" + shoulderWidth.ToString("F2"));
+            if (debugLog)
+                Debug.Log("人太遠 / 肩膀太小，不判斷 shoulderWidth=" + shoulderWidth.ToString("F2"));
             return;
         }
 
@@ -127,7 +135,8 @@ public PushHitBoxController pushHitBox;
             lowestLeftY = leftWrist.y;
             lowestRightY = rightWrist.y;
 
-            Debug.Log("雙手已放下，可以準備肩推");
+            if (debugLog)
+                Debug.Log("雙手已放下，可以準備肩推");
         }
 
         float leftMoveUp = lowestLeftY - leftWrist.y;
@@ -143,21 +152,24 @@ public PushHitBoxController pushHitBox;
             leftElbow.y < leftShoulder.y + 0.08f &&
             rightElbow.y < rightShoulder.y + 0.08f;
 
-        Debug.Log(
-            "肩寬=" + shoulderWidth.ToString("F2") +
-            " 肩Y=" + avgShoulderY.ToString("F2") +
-            " 手Y=" + avgWristY.ToString("F2") +
-            " 左上移=" + leftMoveUp.ToString("F2") +
-            " 右上移=" + rightMoveUp.ToString("F2") +
-            " leftElbowDown=" + leftElbowDown +
-            " rightElbowDown=" + rightElbowDown +
-            " handsDown=" + handsDown +
-            " handsUp=" + handsUp +
-            " movedEnough=" + movedEnough +
-            " elbowsUp=" + elbowsUp +
-            " ready=" + ready +
-            " frame=" + validFrameCount
-        );
+        if (debugLog)
+        {
+            Debug.Log(
+                "肩寬=" + shoulderWidth.ToString("F2") +
+                " 肩Y=" + avgShoulderY.ToString("F2") +
+                " 手Y=" + avgWristY.ToString("F2") +
+                " 左上移=" + leftMoveUp.ToString("F2") +
+                " 右上移=" + rightMoveUp.ToString("F2") +
+                " leftElbowDown=" + leftElbowDown +
+                " rightElbowDown=" + rightElbowDown +
+                " handsDown=" + handsDown +
+                " handsUp=" + handsUp +
+                " movedEnough=" + movedEnough +
+                " elbowsUp=" + elbowsUp +
+                " ready=" + ready +
+                " frame=" + validFrameCount
+            );
+        }
 
         if (ready && handsUp && movedEnough && elbowsUp)
         {
@@ -170,7 +182,8 @@ public PushHitBoxController pushHitBox;
 
         if (validFrameCount >= requiredFrames)
         {
-            Debug.Log("成功偵測雙手肩推一次");
+            if (debugLog)
+                Debug.Log("成功偵測雙手肩推一次");
 
             requestPush = true;
             ready = false;

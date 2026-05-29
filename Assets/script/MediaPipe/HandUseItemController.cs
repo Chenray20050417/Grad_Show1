@@ -8,6 +8,9 @@ public class HandUseItemController : MonoBehaviour
     [Header("手勢冷卻")]
     public float gestureCooldown = 1.2f;
 
+    [Header("指定手")]
+    public string useItemHandLabel = "Right";
+
     private float lastUseTime = -999f;
 
     private int pendingGesture = 0;
@@ -60,7 +63,15 @@ public class HandUseItemController : MonoBehaviour
 
     public void CheckHand(NormalizedLandmarks hand)
     {
+        CheckHand(hand, useItemHandLabel);
+    }
+
+    public void CheckHand(NormalizedLandmarks hand, string handLabel)
+    {
         if (hand.landmarks == null || hand.landmarks.Count < 21)
+            return;
+
+        if (!string.IsNullOrEmpty(useItemHandLabel) && handLabel != useItemHandLabel)
             return;
 
         int gestureNumber = DetectNumber(hand);

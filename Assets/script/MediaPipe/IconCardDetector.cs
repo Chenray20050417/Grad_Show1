@@ -19,8 +19,8 @@ public class IconCardDetector : MonoBehaviour
     }
 
     [Header("Camera")]
-    public bool detectionEnabled = true;
-    public bool startCameraOnEnable = true;
+    public bool detectionEnabled = false;
+    public bool startCameraOnEnable = false;
     public string preferredDeviceName = "";
     public RawImage debugPreview;
 
@@ -62,6 +62,12 @@ public class IconCardDetector : MonoBehaviour
 
     private void OnEnable()
     {
+        if (!detectionEnabled)
+        {
+            UpdateStatus("圖示卡偵測已停用");
+            return;
+        }
+
         if (startCameraOnEnable)
             StartCamera();
     }
